@@ -1,9 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function GET(context: { params: { id: string } }) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const testId = parseInt(context.params.id, 10);
+    const testId = parseInt(params.id, 10);
 
     const test = await prisma.test.findUnique({
       where: { id: testId },
@@ -28,6 +31,6 @@ export async function GET(context: { params: { id: string } }) {
     });
   } catch (err) {
     console.error("[GET /api/tests/:id]", err);
-    return NextResponse.json({ error: "서버 에러" }, { status: 500 });
+    return NextResponse.json({ error: "서버 오류" }, { status: 500 });
   }
 }
