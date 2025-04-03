@@ -1,6 +1,6 @@
 // app/layout.tsx
 import AuthButtons from "@/components/AuthButtons";
-import SessionProviderWrapper from "@/components/SessionProviderWrapper";
+import SessionProvider from "@/components/SessionProvider";
 import { Inter } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
@@ -8,8 +8,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Ns Site of Imagination",
-  description: "N들의 상상터에 오신 걸 환영합니다",
+  title: "Ns_Site_of_Imagination",
+  description: "상상력으로 만드는 심리 테스트 플랫폼",
 };
 
 export default function RootLayout({
@@ -20,15 +20,23 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={inter.className}>
-        <SessionProviderWrapper>
-          <header className="flex justify-between items-center px-6 py-4 border-b">
-            <Link href="/" className="text-xl font-bold">
-              N들의 상상터
-            </Link>
+        <SessionProvider>
+          <nav className="w-full px-6 py-4 flex justify-between items-center border-b">
+            <div className="flex items-center gap-6">
+              <Link href="/" className="text-xl font-bold">
+                N들의 상상터
+              </Link>
+
+              <Link href="/make" className="text-sm hover:underline">
+                상상공방
+              </Link>
+            </div>
+
             <AuthButtons />
-          </header>
-          <main className="p-6">{children}</main>
-        </SessionProviderWrapper>
+          </nav>
+
+          {children}
+        </SessionProvider>
       </body>
     </html>
   );
