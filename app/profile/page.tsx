@@ -12,7 +12,7 @@ export default async function ProfilePage() {
     return <p>로그인 정보가 없습니다.</p>;
   }
 
-  const { name, email, image } = session.user;
+  const { name, image } = session.user;
 
   return (
     <ClientGuard>
@@ -31,21 +31,10 @@ export default async function ProfilePage() {
           )}
           <div>
             <p className="text-lg font-semibold">{name}</p>
-            <p className="text-sm text-gray-500">{email}</p>
           </div>
         </div>
 
         <LogoutButton />
-
-        {/* ✅ 디버깅용 세션 출력 */}
-        <div className="mt-6">
-          <h2 className="text-sm font-bold mb-1 text-gray-500">
-            🔍 세션 정보 (Debug)
-          </h2>
-          <pre className="text-xs bg-gray-100 p-4 rounded text-gray-700 overflow-x-auto whitespace-pre-wrap">
-            {JSON.stringify(session, null, 2)}
-          </pre>
-        </div>
       </div>
     </ClientGuard>
   );

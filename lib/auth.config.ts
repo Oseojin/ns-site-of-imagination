@@ -13,7 +13,13 @@ export const authConfig: AuthOptions = {
     KakaoProvider({
       clientId: process.env.KAKAO_CLIENT_ID!,
       clientSecret: process.env.KAKAO_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          scope: "profile_nickname profile_image",
+        },
+      },
     }),
+
     DiscordProvider({
       clientId: process.env.DISCORD_CLIENT_ID!,
       clientSecret: process.env.DISCORD_CLIENT_SECRET!,
@@ -25,7 +31,6 @@ export const authConfig: AuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.name = user.name;
-        token.email = user.email;
         token.picture = user.image;
       }
       return token;
@@ -34,7 +39,6 @@ export const authConfig: AuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.name = token.name;
-        session.user.email = token.email;
         session.user.image = token.picture;
       }
       return session;
