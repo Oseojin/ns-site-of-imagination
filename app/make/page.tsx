@@ -1,4 +1,3 @@
-// app/make/page.tsx
 "use client";
 
 import ClientGuard from "@/components/ClientGuard";
@@ -6,7 +5,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-// 💡 추후 서버에서 불러올 테스트 mock
 const mockTests = [
   {
     id: "test-1",
@@ -32,45 +30,47 @@ export default function TestManagePage() {
 
   return (
     <ClientGuard>
-      <div className="max-w-3xl mx-auto mt-20 p-6">
-        <h1 className="text-2xl font-bold mb-6">🛠️ 나의 상상공방</h1>
+      {/* ✅ 전체 wrapper 기준점 설정 */}
+      <div className="w-full p-6 relative">
+        {/* ✅ 페이지 우측 상단 고정 버튼 */}
+        <button
+          className="absolute top-6 right-6 text-white bg-black py-2 px-4 rounded hover:bg-gray-800 text-sm z-10"
+          onClick={() => router.push("/make/title")}
+        >
+          + 새 테스트 만들기
+        </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {tests.map((test) => (
-            <div key={test.id} className="border p-4 rounded shadow-sm">
-              <Image
-                src={test.thumbnail}
-                alt={test.title}
-                width={400}
-                height={200}
-                className="rounded mb-2 object-cover"
-              />
-              <h2 className="font-semibold text-lg mb-2">{test.title}</h2>
-              <div className="flex gap-2">
-                <button
-                  className="text-sm px-3 py-1 border rounded hover:bg-gray-100"
-                  onClick={() => router.push(`/make/title?id=${test.id}`)}
-                >
-                  수정
-                </button>
-                <button
-                  className="text-sm px-3 py-1 border rounded text-red-500 hover:bg-red-50"
-                  onClick={() => handleDelete(test.id)}
-                >
-                  삭제
-                </button>
+        <div className="max-w-screen-lg">
+          <h1 className="text-2xl font-bold mb-6">🛠️ 나의 상상공방</h1>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {tests.map((test) => (
+              <div key={test.id} className="border p-4 rounded shadow-sm">
+                <Image
+                  src={test.thumbnail}
+                  alt={test.title}
+                  width={400}
+                  height={200}
+                  className="rounded mb-2 object-cover"
+                />
+                <h2 className="font-semibold text-lg mb-2">{test.title}</h2>
+                <div className="flex gap-2">
+                  <button
+                    className="text-sm px-3 py-1 border rounded hover:bg-gray-100"
+                    onClick={() => router.push(`/make/title?id=${test.id}`)}
+                  >
+                    수정
+                  </button>
+                  <button
+                    className="text-sm px-3 py-1 border rounded text-red-500 hover:bg-red-50"
+                    onClick={() => handleDelete(test.id)}
+                  >
+                    삭제
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-8 text-center">
-          <button
-            className="text-white bg-black py-2 px-4 rounded hover:bg-gray-800"
-            onClick={() => router.push("/make/title")}
-          >
-            + 새 테스트 만들기
-          </button>
+            ))}
+          </div>
         </div>
       </div>
     </ClientGuard>

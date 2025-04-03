@@ -1,4 +1,3 @@
-// app/layout.tsx
 import AuthButtons from "@/components/AuthButtons";
 import SessionProvider from "@/components/SessionProvider";
 import { Inter } from "next/font/google";
@@ -21,18 +20,22 @@ export default function RootLayout({
     <html lang="ko">
       <body className={inter.className}>
         <SessionProvider>
-          <nav className="w-full px-6 py-4 flex justify-between items-center border-b">
-            <div className="flex items-center gap-6">
+          <nav className="w-full px-6 py-4 border-b">
+            <div className="flex flex-row items-start gap-2">
               <Link href="/" className="text-xl font-bold">
                 N들의 상상터
               </Link>
-
-              <Link href="/make" className="text-sm hover:underline">
+              <Link
+                href="/make"
+                className="text-sm text-gray-700 hover:underline"
+              >
                 상상공방
               </Link>
             </div>
 
-            <AuthButtons />
+            <div className="absolute top-4 right-6">
+              <AuthButtons />
+            </div>
           </nav>
 
           {children}
