@@ -1,10 +1,12 @@
 // components/AuthButtons.tsx
 "use client";
 
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function AuthButtons() {
   const { data: session } = useSession();
+  const router = useRouter();
 
   if (session) {
     return (
@@ -15,25 +17,11 @@ export default function AuthButtons() {
   }
 
   return (
-    <div className="flex gap-2">
-      <button
-        onClick={() => signIn("google")}
-        className="text-sm hover:underline"
-      >
-        구글 로그인
-      </button>
-      <button
-        onClick={() => signIn("kakao")}
-        className="text-sm hover:underline"
-      >
-        카카오 로그인
-      </button>
-      <button
-        onClick={() => signIn("discord")}
-        className="text-sm hover:underline"
-      >
-        디스코드 로그인
-      </button>
-    </div>
+    <button
+      onClick={() => router.push("/login")}
+      className="text-sm hover:underline"
+    >
+      로그인
+    </button>
   );
 }
