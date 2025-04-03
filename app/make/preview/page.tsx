@@ -85,7 +85,7 @@ export default function PreviewPage() {
     setCurrentIndex((prev) => prev + 1);
   };
 
-  const handleOptionClick = (opt: string) => {
+  const handleOptionClick = (_opt: string) => {
     handleNext();
   };
 
