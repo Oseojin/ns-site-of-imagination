@@ -1,4 +1,5 @@
 // app/page.tsx
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
@@ -18,10 +19,12 @@ export default function Home() {
             href={`/test/${test.id}`}
             className="border rounded-xl overflow-hidden shadow hover:shadow-lg transition"
           >
-            <img
+            <Image
               src={test.image}
               alt={test.title}
               className="w-full h-40 object-cover"
+              width={200}
+              height={100}
             />
             <div className="p-4 font-semibold">{test.title}</div>
           </Link>

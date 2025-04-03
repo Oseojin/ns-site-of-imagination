@@ -1,4 +1,5 @@
 // app/layout.tsx
+import AuthButtons from "@/components/AuthButtons";
 import { Inter } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
@@ -22,9 +23,7 @@ export default function RootLayout({
           <Link href="/" className="text-xl font-bold">
             N들의 상상터
           </Link>
-          <Link href="/profile" className="text-sm hover:underline">
-            프로필
-          </Link>
+          <AuthButtons />
         </header>
         <main className="p-6">{children}</main>
       </body>
