@@ -85,8 +85,9 @@ export default function PreviewPage() {
     setCurrentIndex((prev) => prev + 1);
   };
 
-  const handleOptionClick = (_opt: string) => {
+  const handleOptionClick = (opt: string) => {
     handleNext();
+    opt;
   };
 
   const handleSubjectiveChange = (e: React.ChangeEvent<HTMLInputElement>) => {
