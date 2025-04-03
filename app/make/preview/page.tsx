@@ -87,7 +87,7 @@ export default function PreviewPage() {
 
   const handleOptionClick = (opt: string) => {
     handleNext();
-    opt;
+    return opt;
   };
 
   const handleSubjectiveChange = (e: React.ChangeEvent<HTMLInputElement>) => {
