@@ -10,7 +10,7 @@ export default function ClientGuard({
 }: {
   children: React.ReactNode;
 }) {
-  const { data: session, status } = useSession();
+  const { status } = useSession(); // session 제거
   const router = useRouter();
   const [isReady, setIsReady] = useState(false);
 
@@ -18,7 +18,7 @@ export default function ClientGuard({
     if (status === "loading") return;
 
     if (status === "unauthenticated") {
-      router.replace("/"); // 로그인 안된 경우 홈으로
+      router.replace("/");
     } else {
       setIsReady(true);
     }
