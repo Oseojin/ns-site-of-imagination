@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  image     String?
+  tests     Test[]
+  createdAt DateTime @default(now())
+}
+
+model Test {
+  id          Int        @id @default(autoincrement())
+  title       String
+  description String
+  image       String
+  user        User       @relation(fields: [userId], references: [id])
+  userId      Int
+  questions   Question[]
+  results     Result[]
+  createdAt   DateTime   @default(now())
+}
+
+model Question {
+  id          Int        @id @default(autoincrement())
+  title       String
+  body        String
+  image       String
+  type        String     // subjective | objective
+  test        Test       @relation(fields: [testId], references: [id])
+  testId      Int
+  options     Option[]
+}
+
+model Option {
+  id          Int        @id @default(autoincrement())
+  text        String
+  question    Question   @relation(fields: [questionId], references: [id])
+  questionId  Int
+}
+
+model Result {
+  id          Int        @id @default(autoincrement())
+  name        String
+  description String
+  image       String
+  setting     String     // AI 프롬프트 기준 값
+  test        Test       @relation(fields: [testId], references: [id])
+  testId      Int
+}
+
+model Answer {
+  id          Int        @id @default(autoincrement())
+  questionId  Int
+  userId      Int
+  content     String
+  createdAt   DateTime   @default(now())
+}
