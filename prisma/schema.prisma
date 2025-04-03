@@ -19,6 +19,7 @@ model User {
 model Test {
   id          Int        @id @default(autoincrement())
   title       String
+  titleImage  String
   description String
   image       String
   user        User       @relation(fields: [userId], references: [id])

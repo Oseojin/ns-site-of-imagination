@@ -35,7 +35,7 @@ export default function TestManagePage() {
         {/* ✅ 페이지 우측 상단 고정 버튼 */}
         <button
           className="absolute top-6 right-6 text-white bg-black py-2 px-4 rounded hover:bg-gray-800 text-sm z-10"
-          onClick={() => router.push("/make/title")}
+          onClick={() => router.push("/make/editor")} // ✅ 여기 수정
         >
           + 새 테스트 만들기
         </button>
