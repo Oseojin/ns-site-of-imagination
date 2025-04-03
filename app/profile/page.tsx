@@ -36,6 +36,16 @@ export default async function ProfilePage() {
         </div>
 
         <LogoutButton />
+
+        {/* ✅ 디버깅용 세션 출력 */}
+        <div className="mt-6">
+          <h2 className="text-sm font-bold mb-1 text-gray-500">
+            🔍 세션 정보 (Debug)
+          </h2>
+          <pre className="text-xs bg-gray-100 p-4 rounded text-gray-700 overflow-x-auto whitespace-pre-wrap">
+            {JSON.stringify(session, null, 2)}
+          </pre>
+        </div>
       </div>
     </ClientGuard>
   );
