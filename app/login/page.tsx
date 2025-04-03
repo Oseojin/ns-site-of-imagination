@@ -1,4 +1,3 @@
-// app/login/page.tsx
 "use client";
 
 import { signIn } from "next-auth/react";
@@ -10,19 +9,19 @@ export default function LoginPage() {
 
       <div className="flex flex-col gap-4">
         <button
-          onClick={() => signIn("google")}
+          onClick={() => signIn("google", { callbackUrl: "/" })}
           className="w-full py-2 px-4 border rounded hover:bg-gray-100"
         >
           구글로 로그인
         </button>
         <button
-          onClick={() => signIn("kakao")}
+          onClick={() => signIn("kakao", { callbackUrl: "/" })}
           className="w-full py-2 px-4 border rounded hover:bg-yellow-100"
         >
           카카오로 로그인
         </button>
         <button
-          onClick={() => signIn("discord")}
+          onClick={() => signIn("discord", { callbackUrl: "/" })}
           className="w-full py-2 px-4 border rounded hover:bg-indigo-100"
         >
           디스코드로 로그인

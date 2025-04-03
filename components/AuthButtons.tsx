@@ -1,18 +1,25 @@
-// components/AuthButtons.tsx
 "use client";
 
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function AuthButtons() {
   const { data: session } = useSession();
   const router = useRouter();
 
-  if (session) {
+  if (session?.user) {
     return (
-      <button onClick={() => signOut()} className="text-sm hover:underline">
-        로그아웃
-      </button>
+      <Link href="/profile" className="block">
+        <Image
+          src={session.user.image || "/default-user.png"}
+          alt="프로필"
+          width={36}
+          height={36}
+          className="rounded-full hover:opacity-80"
+        />
+      </Link>
     );
   }
 
