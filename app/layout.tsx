@@ -1,5 +1,6 @@
 // app/layout.tsx
 import AuthButtons from "@/components/AuthButtons";
+import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 import { Inter } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
@@ -19,13 +20,15 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={inter.className}>
-        <header className="flex justify-between items-center px-6 py-4 border-b">
-          <Link href="/" className="text-xl font-bold">
-            N들의 상상터
-          </Link>
-          <AuthButtons />
-        </header>
-        <main className="p-6">{children}</main>
+        <SessionProviderWrapper>
+          <header className="flex justify-between items-center px-6 py-4 border-b">
+            <Link href="/" className="text-xl font-bold">
+              N들의 상상터
+            </Link>
+            <AuthButtons />
+          </header>
+          <main className="p-6">{children}</main>
+        </SessionProviderWrapper>
       </body>
     </html>
   );
