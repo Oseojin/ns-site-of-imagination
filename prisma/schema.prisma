@@ -34,7 +34,7 @@ model Question {
   title       String
   body        String
   image       String
-  type        String     // subjective | objective
+  type        String
   test        Test       @relation(fields: [testId], references: [id])
   testId      Int
   options     Option[]
@@ -52,7 +52,7 @@ model Result {
   name        String
   description String
   image       String
-  setting     String     // AI 프롬프트 기준 값
+  setting     String
   test        Test       @relation(fields: [testId], references: [id])
   testId      Int
 }
