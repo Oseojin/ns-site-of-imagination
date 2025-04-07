@@ -51,7 +51,6 @@ export async function POST(req: NextRequest) {
     });
 
     const content = completion.choices[0].message?.content ?? "";
-    console.log(prompt);
     const match = content.match(/결과(\d+)/);
     const index = match ? parseInt(match[1], 10) - 1 : 0;
 
