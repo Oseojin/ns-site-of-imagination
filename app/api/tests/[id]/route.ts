@@ -4,17 +4,10 @@ import { UpdateTestInput } from "@/types/test";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
-interface Context {
-  params: {
-    id: string;
-  };
-}
+type IParams = Promise<{ id: string }>;
 
-export async function GET(
-  req: NextRequest,
-  context: { params: { id?: string } }
-) {
-  const id = context.params.id;
+export async function GET(req: NextRequest, { params }: { params: IParams }) {
+  const id = (await params).id;
 
   if (!id) {
     return NextResponse.json(
@@ -63,7 +56,7 @@ export async function GET(
   }
 }
 
-export async function PUT(req: NextRequest, context: Context) {
+export async function PUT(req: NextRequest, { params }: { params: IParams }) {
   const session = await getServerSession(authConfig);
   if (!session?.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -73,7 +66,7 @@ export async function PUT(req: NextRequest, context: Context) {
     where: { providerId: session.user.email },
   });
 
-  const id = parseInt(context.params.id, 10);
+  const id = parseInt((await params).id, 10);
   const body: UpdateTestInput = await req.json();
 
   const test = await prisma.test.findUnique({
@@ -119,10 +112,7 @@ export async function PUT(req: NextRequest, context: Context) {
 // app/api/tests/[id]/route.ts (삭제용 API 추가)
 // app/api/tests/[id]/route.ts
 
-export async function DELETE(
-  req: NextRequest,
-  context: { params: { id: string } }
-) {
+export async function DELETE(req: NextRequest, context: { params: IParams }) {
   const session = await getServerSession(authConfig);
   const providerId = session?.user?.id;
 
@@ -166,12 +156,12 @@ export async function DELETE(
 
 export async function PATCH(
   request: NextRequest,
-  context: { params: { id: string } }
+  context: { params: IParams }
 ) {
   const session = await getServerSession(authConfig);
   const user = session?.user;
 
-  const id = context.params.id;
+  const id = (await context.params).id;
 
   if (typeof id !== "string") {
     return new Response(

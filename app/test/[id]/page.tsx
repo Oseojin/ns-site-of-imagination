@@ -4,14 +4,12 @@ import StartButton from "@/components/StartButton";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
-interface Props {
-  params: { id: string };
-}
+type IParams = Promise<{ id: string }>;
 
-export default async function TestDetailPage({ params }: Props) {
+export default async function TestDetailPage({ params }: { params: IParams }) {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
-  const res = await fetch(`${baseUrl}/api/tests/${params.id}`, {
+  const res = await fetch(`${baseUrl}/api/tests/${(await params).id}`, {
     cache: "no-store",
   });
 
@@ -32,7 +30,7 @@ export default async function TestDetailPage({ params }: Props) {
         />
       </div>
 
-      <StartButton testId={`${params.id}`} />
+      <StartButton testId={`${(await params).id}`} />
     </div>
   );
 }
