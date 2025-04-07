@@ -10,9 +10,26 @@ interface Context {
   };
 }
 
-export async function GET(req: NextRequest, context: Context) {
-  const { id } = context.params;
+export async function GET(
+  req: NextRequest,
+  context: { params: { id?: string } }
+) {
+  const id = context.params.id;
+
+  if (!id) {
+    return NextResponse.json(
+      { error: "ID가 제공되지 않았습니다." },
+      { status: 400 }
+    );
+  }
+
   const testId = parseInt(id, 10);
+  if (isNaN(testId)) {
+    return NextResponse.json(
+      { error: "올바르지 않은 ID입니다." },
+      { status: 400 }
+    );
+  }
 
   try {
     const test = await prisma.test.findUnique({
@@ -117,10 +134,10 @@ export async function DELETE(
     where: { providerId },
   });
 
-  // ❗ await 사용하지 않고 바로 context.params.id 사용
-  const id = parseInt(context.params.id, 10);
+  const { id } = await context.params;
+  const parsedId = parseInt(id, 10);
 
-  const test = await prisma.test.findUnique({ where: { id } });
+  const test = await prisma.test.findUnique({ where: { id: parsedId } });
   if (!test || test.userId !== user?.id) {
     return NextResponse.json({ error: "권한이 없습니다." }, { status: 403 });
   }
@@ -129,18 +146,91 @@ export async function DELETE(
     await prisma.option.deleteMany({
       where: {
         question: {
-          testId: id,
+          testId: parsedId,
         },
       },
     });
 
-    await prisma.question.deleteMany({ where: { testId: id } });
-    await prisma.result.deleteMany({ where: { testId: id } });
-    await prisma.test.delete({ where: { id } });
+    await prisma.question.deleteMany({ where: { testId: parsedId } });
+    await prisma.result.deleteMany({ where: { testId: parsedId } });
+    await prisma.test.delete({ where: { id: parsedId } });
 
     return NextResponse.json({ message: "삭제 완료" });
   } catch (error) {
     console.error("삭제 중 오류:", error);
     return NextResponse.json({ error: "삭제 실패" }, { status: 500 });
   }
+}
+
+// 📁 app/api/tests/[id]/route.ts
+
+export async function PATCH(
+  request: NextRequest,
+  context: { params: { id: string } }
+) {
+  const session = await getServerSession(authConfig);
+  const user = session?.user;
+
+  const id = context.params.id;
+
+  if (typeof id !== "string") {
+    return new Response(
+      JSON.stringify({ error: "ID가 제공되지 않았습니다." }),
+      { status: 400 }
+    );
+  }
+
+  const parsedId = parseInt(id, 10);
+  if (isNaN(parsedId)) {
+    return new Response(JSON.stringify({ error: "올바르지 않은 ID입니다." }), {
+      status: 400,
+    });
+  }
+
+  const existingTest = await prisma.test.findUnique({
+    where: { id: parsedId },
+  });
+
+  if (!existingTest || existingTest.userId !== Number(user?.id)) {
+    return new Response(JSON.stringify({ error: "수정 권한이 없습니다." }), {
+      status: 403,
+    });
+  }
+
+  const body = await request.json();
+
+  const updatedTest = await prisma.test.update({
+    where: { id: parsedId },
+    data: {
+      title: body.title,
+      titleImage: body.titleImage,
+      description: body.description,
+      questions: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        updateMany: body.questions.map((q: any) => ({
+          where: { id: q.id },
+          data: {
+            title: q.title,
+            type: q.type,
+            image: q.image,
+            options: q.options,
+          },
+        })),
+      },
+      results: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        updateMany: body.results.map((r: any) => ({
+          where: { id: r.id },
+          data: {
+            name: r.name,
+            detail: r.detail,
+            image: r.image,
+            config: r.config,
+          },
+        })),
+      },
+    },
+  });
+
+  return new Response(JSON.stringify(updatedTest));
 }

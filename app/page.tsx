@@ -46,7 +46,7 @@ export default function Home() {
         {tests.map((test) => (
           <Link
             key={test.id}
-            href={`/preview/${test.id}`}
+            href={`/test/${test.id}`}
             className="border rounded-xl overflow-hidden shadow hover:shadow-lg transition"
           >
             <Image
