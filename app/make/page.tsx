@@ -85,12 +85,12 @@ export default function TestManagePage() {
                 />
                 <h2 className="font-semibold text-lg mb-2">{test.title}</h2>
                 <div className="flex gap-2">
-                  <button
+                  {/*<button
                     className="text-sm px-3 py-1 border rounded hover:bg-gray-100"
                     onClick={() => router.push(`/make/title?id=${test.id}`)}
                   >
                     수정
-                  </button>
+                  </button>*/}
                   <button
                     className="text-sm px-3 py-1 border rounded text-red-500 hover:bg-red-50"
                     onClick={() => handleDelete(test.id)}
