@@ -26,8 +26,11 @@ export async function POST(req: NextRequest) {
   
   --- 질문과 응답 ---
   ${questions
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .map((q: any, i: number) => `Q${i + 1}: ${q.body}\nA: ${answers[i]}`)
+
+    .map(
+      (q: number, i: number) =>
+        `Q${i + 1}: ${questions[i].title}\nA: ${answers[i]}`
+    )
     .join("\n")}
   
   --- 결과 목록 ---
@@ -43,11 +46,12 @@ export async function POST(req: NextRequest) {
 
   try {
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4",
       messages: [{ role: "user", content: prompt }],
     });
 
     const content = completion.choices[0].message?.content ?? "";
+    console.log(prompt);
     const match = content.match(/결과(\d+)/);
     const index = match ? parseInt(match[1], 10) - 1 : 0;
 

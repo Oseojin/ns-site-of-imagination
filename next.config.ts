@@ -6,6 +6,12 @@ const nextConfig = {
       "k.kakaocdn.net", // ✅ Kakao 프로필 이미지
       "cdn.discordapp.com", // ✅ Discord 프로필 이미지
     ],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "ns-sangsangter-images.s3.ap-northeast-2.amazonaws.com",
+      },
+    ],
   },
 };
 

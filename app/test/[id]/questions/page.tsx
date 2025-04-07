@@ -45,24 +45,51 @@ export default function QuestionsPage() {
       });
   }, [id]);
 
-  const handleAnswer = async (answer: string | number) => {
+  const handleAnswer = async (question: Question, answer: string) => {
+    if (!test) return;
+
+    const trimmedAnswer = answer.trim();
+    if (!trimmedAnswer) {
+      alert("응답을 입력해주세요.");
+      return;
+    }
+
+    const index = test.questions.findIndex((q) => q.id === question.id);
+    if (index === -1) return;
+
     const updated = [...answers];
-    updated[currentIndex] = answer;
+    updated[index] = trimmedAnswer;
     setAnswers(updated);
 
-    if (test && currentIndex < test.questions.length - 1) {
-      setCurrentIndex(currentIndex + 1);
+    // 질문 본문과 응답을 string으로 저장
+    const savedQuestions = test.questions.map((q) => q.title);
+    const savedAnswers = updated.map((a) => a ?? "");
+
+    // localStorage 저장
+    localStorage.setItem(
+      "latestAnswers",
+      JSON.stringify({
+        questions: savedQuestions,
+        answers: savedAnswers,
+      })
+    );
+
+    const isLast = index === test.questions.length - 1;
+
+    if (!isLast) {
+      setCurrentIndex(index + 1);
       setInputValue("");
-    } else if (test) {
-      if (!test?.results || !Array.isArray(test.results)) {
+    } else {
+      if (!test.results || !Array.isArray(test.results)) {
         alert("결과 데이터가 유효하지 않습니다.");
         return;
       }
+
       const response = await fetch("/api/openai/result", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          answers,
+          answers: savedAnswers,
           questions: test.questions,
           results: test.results,
         }),
@@ -105,7 +132,7 @@ export default function QuestionsPage() {
             <button
               key={index}
               className="px-4 py-2 border rounded-lg hover:bg-gray-100"
-              onClick={() => handleAnswer(index)}
+              onClick={() => handleAnswer(question, opt.text)}
             >
               {opt.text}
             </button>
@@ -122,7 +149,9 @@ export default function QuestionsPage() {
           <button
             className="bg-black text-white px-4 py-2 rounded"
             onClick={() => {
-              if (inputValue.trim() !== "") handleAnswer(inputValue);
+              if (inputValue.trim() !== "") {
+                handleAnswer(question, inputValue);
+              }
             }}
           >
             확인

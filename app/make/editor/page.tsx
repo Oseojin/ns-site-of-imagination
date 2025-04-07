@@ -23,6 +23,28 @@ type Result = {
   imageUrl: string;
 };
 
+async function uploadImageToS3(file: File): Promise<string> {
+  const res = await fetch("/api/upload", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      fileName: file.name,
+      fileType: file.type,
+    }),
+  });
+
+  const { uploadUrl, fileUrl } = await res.json();
+
+  // 실제 이미지 업로드
+  await fetch(uploadUrl, {
+    method: "PUT",
+    headers: { "Content-Type": file.type },
+    body: file,
+  });
+
+  return fileUrl; // 👉 이 URL을 DB에 저장
+}
+
 export default function MakeEditorPage() {
   const router = useRouter();
   const [titleImage, setTitleImage] = useState<string>("");
@@ -152,17 +174,17 @@ export default function MakeEditorPage() {
     setResults(results.filter((r) => r.id !== id));
   };
 
-  const handleQuestionImageChange = (id: number, file: File) => {
-    const url = URL.createObjectURL(file);
+  const handleQuestionImageChange = async (id: number, file: File) => {
+    const uploadedUrl = await uploadImageToS3(file);
     setQuestions((prev) =>
-      prev.map((q) => (q.id === id ? { ...q, imageUrl: url } : q))
+      prev.map((q) => (q.id === id ? { ...q, imageUrl: uploadedUrl } : q))
     );
   };
 
-  const handleResultImageChange = (id: number, file: File) => {
-    const url = URL.createObjectURL(file);
+  const handleResultImageChange = async (id: number, file: File) => {
+    const uploadedUrl = await uploadImageToS3(file);
     setResults((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, imageUrl: url } : r))
+      prev.map((r) => (r.id === id ? { ...r, imageUrl: uploadedUrl } : r))
     );
   };
 
@@ -247,11 +269,11 @@ export default function MakeEditorPage() {
           <input
             type="file"
             accept="image/*"
-            onChange={(e) => {
+            onChange={async (e) => {
               const file = e.target.files?.[0];
               if (file) {
-                const url = URL.createObjectURL(file);
-                setTitleImage(url);
+                const uploadUrl = await uploadImageToS3(file);
+                setTitleImage(uploadUrl);
               }
             }}
             className="w-full border px-4 py-2 rounded mb-2"
