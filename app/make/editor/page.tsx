@@ -3,7 +3,7 @@
 import ClientGuard from "@/components/ClientGuard";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // 타입 정의
 type QuestionType = "subjective" | "multiple";
@@ -33,6 +33,26 @@ export default function MakeEditorPage() {
   const [results, setResults] = useState<Result[]>([
     { id: 1, name: "", description: "", imageUrl: "" },
   ]);
+
+  useEffect(() => {
+    const raw = localStorage.getItem("previewData");
+    if (!raw) return;
+
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed.title) setTitle(parsed.title);
+      if (parsed.titleImage) setTitleImage(parsed.titleImage);
+      if (parsed.questions) setQuestions(parsed.questions);
+      if (parsed.results) setResults(parsed.results);
+    } catch (err) {
+      console.error("previewData 로딩 실패", err);
+    }
+
+    // 로딩 후 previewData 삭제 (새로 작성 시작 시 방해되지 않도록)
+    return () => {
+      localStorage.removeItem("previewData");
+    };
+  }, []);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
@@ -146,15 +166,52 @@ export default function MakeEditorPage() {
     );
   };
 
+  const isFormValid = () => {
+    // 필수 항목 확인
+    if (!title || !titleImage || !questions.length || !results.length) {
+      alert("모든 필수 항목을 채워주세요.");
+      return false;
+    }
+
+    const hasEmptyQuestionText = questions.some((q) => !q.text || !q.imageUrl);
+    const hasEmptyResultName = results.some(
+      (r) => !r.name || !r.description || !r.imageUrl
+    );
+
+    if (hasEmptyQuestionText) {
+      alert("모든 질문에 내용을 입력하고 이미지를 추가해주세요.");
+      return false;
+    }
+
+    if (hasEmptyResultName) {
+      alert("모든 결과에 이름, 설명, 이미지를 입력해주세요.");
+      return false;
+    }
+
+    // 모든 질문에 이미지가 있어야 함
+    const hasMissingQuestionImage = questions.some((q) => !q.imageUrl);
+    if (hasMissingQuestionImage) {
+      alert("모든 질문에 이미지를 추가해주세요.");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSave = async () => {
+    if (!isFormValid()) return;
+
     try {
       const res = await fetch("/api/tests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, questions, results }),
+        body: JSON.stringify({ title, titleImage, questions, results }),
+        credentials: "include",
       });
+
       if (res.ok) {
         alert("테스트가 성공적으로 저장되었습니다!");
+        router.push(`/`);
       } else {
         alert("저장 실패: 서버 오류");
       }
@@ -165,6 +222,8 @@ export default function MakeEditorPage() {
   };
 
   const handlePreview = () => {
+    if (!isFormValid()) return;
+
     const testData = {
       title,
       titleImage,

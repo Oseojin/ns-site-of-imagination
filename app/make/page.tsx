@@ -1,41 +1,71 @@
 "use client";
 
 import ClientGuard from "@/components/ClientGuard";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const mockTests = [
-  {
-    id: "test-1",
-    title: "어떤 감정 유형의 사람일까?",
-    thumbnail: "/default-thumbnail.png",
-  },
-  {
-    id: "test-2",
-    title: "당신의 내면 동물은?",
-    thumbnail: "/default-thumbnail.png",
-  },
-];
+interface TestItem {
+  id: number;
+  title: string;
+  titleImage: string;
+  createdAt: string;
+}
 
 export default function TestManagePage() {
   const router = useRouter();
-  const [tests, setTests] = useState(mockTests);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { data: _session, status } = useSession();
+  const [tests, setTests] = useState<TestItem[]>([]);
 
-  const handleDelete = (id: string) => {
-    if (confirm("정말 삭제하시겠습니까?")) {
-      setTests(tests.filter((test) => test.id !== id));
+  useEffect(() => {
+    if (status === "authenticated") {
+      fetch("/api/tests/user")
+        .then(async (res) => {
+          if (!res.ok) {
+            const text = await res.text();
+            console.error("API 호출 실패:", res.status, text);
+            return [];
+          }
+          return res.json();
+        })
+        .then((data) => {
+          if (Array.isArray(data)) {
+            setTests(data);
+          }
+        })
+        .catch((err) => {
+          console.error("데이터 불러오기 실패:", err);
+        });
+    }
+  }, [status]);
+
+  const handleDelete = async (id: number) => {
+    const confirmed = confirm("정말 삭제하시겠습니까?");
+    if (!confirmed) return;
+
+    const res = await fetch(`/api/tests/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+
+    if (res.ok) {
+      alert("삭제되었습니다.");
+      // 새로고침 혹은 목록 재로딩
+      window.location.reload();
+    } else {
+      alert("삭제 실패");
     }
   };
 
   return (
     <ClientGuard>
-      {/* ✅ 전체 wrapper 기준점 설정 */}
       <div className="w-full p-6 relative">
-        {/* ✅ 페이지 우측 상단 고정 버튼 */}
+        {/* 새 테스트 만들기 버튼 */}
         <button
           className="absolute top-6 right-6 text-white bg-black py-2 px-4 rounded hover:bg-gray-800 text-sm z-10"
-          onClick={() => router.push("/make/editor")} // ✅ 여기 수정
+          onClick={() => router.push("/make/editor")}
         >
           + 새 테스트 만들기
         </button>
@@ -47,7 +77,7 @@ export default function TestManagePage() {
             {tests.map((test) => (
               <div key={test.id} className="border p-4 rounded shadow-sm">
                 <Image
-                  src={test.thumbnail}
+                  src={test.titleImage}
                   alt={test.title}
                   width={400}
                   height={200}

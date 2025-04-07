@@ -1,30 +1,60 @@
 // app/page.tsx
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+
+type Test = {
+  id: number;
+  title: string;
+  titleImage: string;
+};
 
 export default function Home() {
-  // 임시 테스트 데이터
-  const tests = [
-    { id: 1, title: "나의 색깔은?", image: "/images/test1.png" },
-    { id: 2, title: "나는 어떤 캐릭터?", image: "/images/test2.png" },
-  ];
+  const [tests, setTests] = useState<Test[]>([]);
+
+  useEffect(() => {
+    fetch("/api/tests")
+      .then(async (res) => {
+        if (!res.ok) {
+          console.error("API 호출 실패:", res.status);
+          return [];
+        }
+
+        const text = await res.text(); // 먼저 문자열로 받기
+        if (!text) return [];
+
+        try {
+          return JSON.parse(text); // 안전하게 파싱
+        } catch (err) {
+          console.error("JSON 파싱 오류:", err);
+          return [];
+        }
+      })
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setTests(data);
+        }
+      });
+  }, []);
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">심리 테스트 목록</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+    <div className="w-full max-w-screen-xl mx-auto px-6 py-12">
+      <h1 className="text-2xl font-bold mb-6">🧠 상상 테스트 목록</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {tests.map((test) => (
           <Link
             key={test.id}
-            href={`/test/${test.id}`}
+            href={`/preview/${test.id}`}
             className="border rounded-xl overflow-hidden shadow hover:shadow-lg transition"
           >
             <Image
-              src={test.image}
+              src={test.titleImage}
               alt={test.title}
+              width={400}
+              height={200}
               className="w-full h-40 object-cover"
-              width={200}
-              height={100}
             />
             <div className="p-4 font-semibold">{test.title}</div>
           </Link>
