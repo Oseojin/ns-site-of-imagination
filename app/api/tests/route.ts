@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
-type QuestionType = "subjective" | "multiple";
+type QuestionType = "subjective" | "objective";
 
 interface TestPayload {
   title: string;
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
           create: body.questions.map((q) => ({
             title: q.text,
             body: "",
-            type: q.type === "multiple" ? "objective" : "subjective",
+            type: q.type === "objective" ? "objective" : "subjective",
             image: q.imageUrl,
             options: {
               create: q.options.map((text) => ({ text })),

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 // 타입 정의
-type QuestionType = "subjective" | "multiple";
+type QuestionType = "subjective" | "objective";
 
 type Question = {
   id: number;
@@ -346,10 +346,10 @@ export default function MakeEditorPage() {
                     className="border px-2 py-1 rounded"
                   >
                     <option value="subjective">주관식</option>
-                    <option value="multiple">객관식</option>
+                    <option value="objective">객관식</option>
                   </select>
                 </div>
-                {q.type === "multiple" && (
+                {q.type === "objective" && (
                   <div className="space-y-2">
                     {q.options.map((opt, idx) => (
                       <div key={idx} className="flex items-center gap-2">

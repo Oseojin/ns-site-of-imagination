@@ -1,10 +1,26 @@
 import { authConfig } from "@/lib/auth.config";
 import prisma from "@/lib/prisma";
-import { UpdateTestInput } from "@/types/test";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
 type IParams = Promise<{ id: string }>;
+type QuestionType = "subjective" | "objective";
+
+interface TestPayload {
+  title: string;
+  titleImage: string;
+  questions: {
+    text: string;
+    type: QuestionType;
+    imageUrl: string;
+    options: string[];
+  }[];
+  results: {
+    name: string;
+    description: string;
+    imageUrl: string;
+  }[];
+}
 
 export async function GET(req: NextRequest, { params }: { params: IParams }) {
   const id = (await params).id;
@@ -56,57 +72,93 @@ export async function GET(req: NextRequest, { params }: { params: IParams }) {
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: IParams }) {
+export async function PUT(req: Request, context: { params: { id: string } }) {
+  const { params } = context;
+  const testId = Number(params.id);
+
   const session = await getServerSession(authConfig);
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const providerId = session?.user?.id;
+
+  if (!providerId) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
   const user = await prisma.user.findUnique({
-    where: { providerId: session.user.email },
+    where: { providerId },
   });
 
-  const id = parseInt((await params).id, 10);
-  const body: UpdateTestInput = await req.json();
-
-  const test = await prisma.test.findUnique({
-    where: { id },
-  });
-
-  if (!test || test.userId !== user?.id) {
-    return NextResponse.json({ error: "권한이 없습니다." }, { status: 403 });
+  if (!user) {
+    return NextResponse.json(
+      { message: "유저를 찾을 수 없습니다." },
+      { status: 404 }
+    );
   }
 
-  await prisma.test.update({
-    where: { id },
-    data: {
-      title: body.title,
-      titleImage: body.titleImage,
-      questions: {
-        deleteMany: {},
-        create: body.questions.map((q) => ({
-          title: q.title,
-          body: q.body,
-          image: q.image,
-          type: q.type,
-          options: {
-            create: q.options?.map((o) => ({ text: o.text })) || [],
-          },
-        })),
-      },
-      results: {
-        deleteMany: {},
-        create: body.results.map((r) => ({
-          name: r.name,
-          description: r.description,
-          image: r.image,
-          setting: r.setting,
-        })),
-      },
-    },
-  });
+  try {
+    const body: TestPayload = await req.json();
 
-  return NextResponse.json({ id });
+    // 1. 관련된 기존 하위 데이터 삭제 (option → question → result)
+    await prisma.option.deleteMany({
+      where: {
+        question: {
+          testId,
+        },
+      },
+    });
+    await prisma.question.deleteMany({ where: { testId } });
+    await prisma.result.deleteMany({ where: { testId } });
+
+    // 2. 테스트 기본 정보 수정
+    await prisma.test.update({
+      where: { id: testId },
+      data: {
+        title: body.title,
+        titleImage: body.titleImage,
+        description: "설명이 없습니다",
+        image: body.titleImage,
+      },
+    });
+
+    // 3. 질문/옵션 생성
+    for (const q of body.questions) {
+      const createdQuestion = await prisma.question.create({
+        data: {
+          testId,
+          title: q.text,
+          body: "",
+          type: q.type === "objective" ? "objective" : "subjective",
+          image: q.imageUrl || "",
+        },
+      });
+
+      if (q.type === "objective" && q.options?.length > 0) {
+        await prisma.option.createMany({
+          data: q.options
+            .filter((opt) => typeof opt === "string" && opt.trim() !== "")
+            .map((text) => ({
+              questionId: createdQuestion.id,
+              text,
+            })),
+        });
+      }
+    }
+
+    // 4. 결과 생성
+    await prisma.result.createMany({
+      data: body.results.map((r) => ({
+        testId,
+        name: r.name,
+        description: r.description,
+        image: r.imageUrl || "",
+        setting: "",
+      })),
+    });
+
+    return NextResponse.json({ id: testId }, { status: 200 });
+  } catch (error) {
+    console.error("테스트 수정 실패:", error);
+    return NextResponse.json({ message: "서버 오류" }, { status: 500 });
+  }
 }
 
 // app/api/tests/[id]/route.ts (삭제용 API 추가)
