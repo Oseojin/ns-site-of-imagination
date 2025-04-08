@@ -345,10 +345,10 @@ export default function MakeEditorPage() {
         <div>
           <h2 className="text-lg font-semibold mb-4">❓ 질문 목록</h2>
           <div className="space-y-8">
-            {questions.map((q) => (
+            {questions.map((q, index) => (
               <div key={q.id} className="border rounded p-4 space-y-4">
                 <div className="flex justify-between items-center">
-                  <label className="font-medium">질문 {q.id}</label>
+                  <label className="font-medium">질문 {index + 1}</label>
                   <button
                     onClick={() => removeQuestion(q.id)}
                     className="text-sm text-red-500 hover:underline"
