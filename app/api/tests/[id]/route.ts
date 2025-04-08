@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
 type IParams = Promise<{ id: string }>;
+type ITest = Promise<{ id: number }>;
 type QuestionType = "subjective" | "objective";
 
 interface TestPayload {
@@ -72,9 +73,8 @@ export async function GET(req: NextRequest, { params }: { params: IParams }) {
   }
 }
 
-export async function PUT(req: Request, context: { params: { id: string } }) {
-  const { params } = context;
-  const testId = Number(params.id);
+export async function PUT(req: Request, { params }: { params: ITest }) {
+  const testId = (await params).id;
 
   const session = await getServerSession(authConfig);
   const providerId = session?.user?.id;
