@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import ClientGuard from "@/components/ClientGuard";
 import StartButton from "@/components/StartButton";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -18,21 +19,23 @@ export default async function TestDetailPage({ params }: { params: IParams }) {
   const data = await res.json();
 
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-8">
-      <h1 className="text-3xl font-bold">{data.title}</h1>
+    <ClientGuard>
+      <div className="max-w-3xl mx-auto p-6 space-y-8">
+        <h1 className="text-3xl font-bold">{data.title}</h1>
 
-      <div className="w-full h-64 relative rounded-xl overflow-hidden border">
-        {data.titleImage === "" ? null : (
-          <Image
-            src={data.titleImage}
-            alt="타이틀 이미지"
-            fill
-            className="object-cover"
-          />
-        )}
+        <div className="w-full h-64 relative rounded-xl overflow-hidden border">
+          {data.titleImage === "" ? null : (
+            <Image
+              src={data.titleImage}
+              alt="타이틀 이미지"
+              fill
+              className="object-cover"
+            />
+          )}
+        </div>
+
+        <StartButton testId={`${(await params).id}`} />
       </div>
-
-      <StartButton testId={`${(await params).id}`} />
-    </div>
+    </ClientGuard>
   );
 }
