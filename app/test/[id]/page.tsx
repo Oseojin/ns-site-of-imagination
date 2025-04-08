@@ -22,12 +22,14 @@ export default async function TestDetailPage({ params }: { params: IParams }) {
       <h1 className="text-3xl font-bold">{data.title}</h1>
 
       <div className="w-full h-64 relative rounded-xl overflow-hidden border">
-        <Image
-          src={data.titleImage}
-          alt="타이틀 이미지"
-          fill
-          className="object-cover"
-        />
+        {data.titleImage === "" ? null : (
+          <Image
+            src={data.titleImage}
+            alt="타이틀 이미지"
+            fill
+            className="object-cover"
+          />
+        )}
       </div>
 
       <StartButton testId={`${(await params).id}`} />

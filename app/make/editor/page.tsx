@@ -190,30 +190,21 @@ export default function MakeEditorPage() {
 
   const isFormValid = () => {
     // 필수 항목 확인
-    if (!title || !titleImage || !questions.length || !results.length) {
+    if (!title || !questions.length || !results.length) {
       alert("모든 필수 항목을 채워주세요.");
       return false;
     }
 
-    const hasEmptyQuestionText = questions.some((q) => !q.text || !q.imageUrl);
-    const hasEmptyResultName = results.some(
-      (r) => !r.name || !r.description || !r.imageUrl
-    );
+    const hasEmptyQuestionText = questions.some((q) => !q.text);
+    const hasEmptyResultName = results.some((r) => !r.name || !r.description);
 
     if (hasEmptyQuestionText) {
-      alert("모든 질문에 내용을 입력하고 이미지를 추가해주세요.");
+      alert("모든 질문에 내용을 입력해 주세요.");
       return false;
     }
 
     if (hasEmptyResultName) {
-      alert("모든 결과에 이름, 설명, 이미지를 입력해주세요.");
-      return false;
-    }
-
-    // 모든 질문에 이미지가 있어야 함
-    const hasMissingQuestionImage = questions.some((q) => !q.imageUrl);
-    if (hasMissingQuestionImage) {
-      alert("모든 질문에 이미지를 추가해주세요.");
+      alert("모든 결과에 이름, 설명을 입력해주세요.");
       return false;
     }
 

@@ -67,13 +67,15 @@ export default function PreviewPage() {
     <main className="max-w-2xl mx-auto p-6">
       {step === "title" && (
         <div className="text-center">
-          <Image
-            src={test.titleImage}
-            alt={test.title}
-            width={800}
-            height={400}
-            className="rounded object-cover w-full h-auto mb-6"
-          />
+          {test.titleImage === "" ? null : (
+            <Image
+              src={test.titleImage}
+              alt={test.title}
+              width={800}
+              height={400}
+              className="rounded object-cover w-full h-auto mb-6"
+            />
+          )}
           <h1 className="text-2xl font-bold mb-4">{test.title}</h1>
           <button
             onClick={() => setStep("question")}
@@ -87,15 +89,16 @@ export default function PreviewPage() {
       {step === "question" && currentQuestion && (
         <div>
           <h2 className="text-xl font-semibold mb-2">{currentQuestion.text}</h2>
-          {currentQuestion.imageUrl && (
-            <Image
-              src={currentQuestion.imageUrl}
-              alt={`질문 이미지`}
-              width={800}
-              height={300}
-              className="rounded object-cover w-full h-auto mb-4"
-            />
-          )}
+          {currentQuestion.imageUrl &&
+            (currentQuestion.imageUrl === "" ? null : (
+              <Image
+                src={currentQuestion.imageUrl}
+                alt={`질문 이미지`}
+                width={800}
+                height={300}
+                className="rounded object-cover w-full h-auto mb-4"
+              />
+            ))}
 
           {currentQuestion.type === "multiple" ? (
             <div className="flex flex-col gap-2">
@@ -117,13 +120,15 @@ export default function PreviewPage() {
 
       {step === "result" && randomResult && (
         <div className="text-center">
-          <Image
-            src={randomResult.imageUrl}
-            alt={randomResult.name}
-            width={600}
-            height={300}
-            className="rounded object-cover w-full h-auto mb-6"
-          />
+          {randomResult.imageUrl === "" ? null : (
+            <Image
+              src={randomResult.imageUrl}
+              alt={randomResult.name}
+              width={600}
+              height={300}
+              className="rounded object-cover w-full h-auto mb-6"
+            />
+          )}
           <h2 className="text-2xl font-bold mb-2">{randomResult.name}</h2>
           <p className="mb-6">{randomResult.description}</p>
 

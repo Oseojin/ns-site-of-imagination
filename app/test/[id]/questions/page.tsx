@@ -114,13 +114,15 @@ export default function QuestionsPage() {
       <h1 className="text-2xl font-bold text-center">{test.title}</h1>
 
       <div className="border rounded-xl overflow-hidden">
-        <Image
-          src={question.image}
-          alt="질문 이미지"
-          width={800}
-          height={300}
-          className="w-full h-64 object-cover"
-        />
+        {question.image === "" ? null : (
+          <Image
+            src={question.image}
+            alt="질문 이미지"
+            width={800}
+            height={300}
+            className="w-full h-64 object-cover"
+          />
+        )}
       </div>
 
       <h2 className="text-xl font-semibold">{question.title}</h2>

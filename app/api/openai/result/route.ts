@@ -46,11 +46,13 @@ export async function POST(req: NextRequest) {
 
   try {
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4",
       messages: [{ role: "user", content: prompt }],
     });
 
+    console.log(prompt);
     const content = completion.choices[0].message?.content ?? "";
+    console.log(content);
     const match = content.match(/결과(\d+)/);
     const index = match ? parseInt(match[1], 10) - 1 : 0;
 

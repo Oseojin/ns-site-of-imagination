@@ -76,13 +76,15 @@ export default function TestManagePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {tests.map((test) => (
               <div key={test.id} className="border p-4 rounded shadow-sm">
-                <Image
-                  src={test.titleImage}
-                  alt={test.title}
-                  width={400}
-                  height={200}
-                  className="rounded mb-2 object-cover"
-                />
+                {test.titleImage === "" ? null : (
+                  <Image
+                    src={test.titleImage}
+                    alt={test.title}
+                    width={400}
+                    height={200}
+                    className="rounded mb-2 object-cover"
+                  />
+                )}
                 <h2 className="font-semibold text-lg mb-2">{test.title}</h2>
                 <div className="flex gap-2">
                   {/*<button

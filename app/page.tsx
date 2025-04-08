@@ -49,13 +49,15 @@ export default function Home() {
             href={`/test/${test.id}`}
             className="border rounded-xl overflow-hidden shadow hover:shadow-lg transition"
           >
-            <Image
-              src={test.titleImage}
-              alt={test.title}
-              width={400}
-              height={200}
-              className="w-full h-40 object-cover"
-            />
+            {test.titleImage === "" ? null : (
+              <Image
+                src={test.titleImage}
+                alt={test.title}
+                width={400}
+                height={200}
+                className="w-full h-40 object-cover"
+              />
+            )}
             <div className="p-4 font-semibold">{test.title}</div>
           </Link>
         ))}

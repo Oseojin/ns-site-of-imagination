@@ -36,13 +36,15 @@ export default function ResultPage() {
   return (
     <div className="max-w-xl mx-auto p-8 space-y-6 text-center">
       <h1 className="text-2xl font-bold">당신의 결과는?</h1>
-      <Image
-        src={result.image}
-        alt={result.name}
-        width={600}
-        height={300}
-        className="mx-auto rounded-xl object-cover"
-      />
+      {result.image === "" ? null : (
+        <Image
+          src={result.image}
+          alt={result.name}
+          width={600}
+          height={300}
+          className="mx-auto rounded-xl object-cover"
+        />
+      )}
       <h2 className="text-xl font-semibold">{result.name}</h2>
       <p className="text-gray-700">{result.description}</p>
     </div>
