@@ -446,10 +446,10 @@ export default function MakeEditorPage() {
         <div>
           <h2 className="text-lg font-semibold mb-4">🎯 결과 목록</h2>
           <div className="space-y-8">
-            {results.map((r) => (
+            {results.map((r, index) => (
               <div key={r.id} className="border rounded p-4 space-y-3">
                 <div className="flex justify-between items-center">
-                  <label className="font-medium">결과 {r.id}</label>
+                  <label className="font-medium">결과 {index + 1}</label>
                   <button
                     onClick={() => removeResult(r.id)}
                     className="text-sm text-red-500 hover:underline"
