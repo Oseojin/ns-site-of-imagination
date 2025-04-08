@@ -1,5 +1,6 @@
 import AuthButtons from "@/components/AuthButtons";
 import SessionProvider from "@/components/SessionProvider";
+import { Analytics } from "@vercel/analytics/next";
 import { Inter } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
@@ -39,6 +40,7 @@ export default function RootLayout({
           </nav>
 
           {children}
+          <Analytics />
         </SessionProvider>
       </body>
     </html>
