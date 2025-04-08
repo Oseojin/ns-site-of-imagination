@@ -1,15 +1,10 @@
 // app/page.tsx
 "use client";
 
+import { Test } from "@/types/test";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
-type Test = {
-  id: number;
-  title: string;
-  titleImage: string;
-};
 
 export default function Home() {
   const [tests, setTests] = useState<Test[]>([]);

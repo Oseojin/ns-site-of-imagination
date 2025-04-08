@@ -1,15 +1,10 @@
 // app/test/[id]/result/page.tsx
 "use client";
 
+import { Result } from "@/types/test";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-
-type Result = {
-  name: string;
-  description: string;
-  image: string;
-};
 
 export default function ResultPage() {
   const searchParams = useSearchParams();

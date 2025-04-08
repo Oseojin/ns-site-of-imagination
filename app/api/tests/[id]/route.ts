@@ -1,27 +1,11 @@
 import { authConfig } from "@/lib/auth.config";
 import prisma from "@/lib/prisma";
+import { TestPayload } from "@/types/test";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
 type IParams = Promise<{ id: string }>;
 type ITest = Promise<{ id: number }>;
-type QuestionType = "subjective" | "objective";
-
-interface TestPayload {
-  title: string;
-  titleImage: string;
-  questions: {
-    text: string;
-    type: QuestionType;
-    imageUrl: string;
-    options: string[];
-  }[];
-  results: {
-    name: string;
-    description: string;
-    imageUrl: string;
-  }[];
-}
 
 export async function GET(req: NextRequest, { params }: { params: IParams }) {
   const id = (await params).id;

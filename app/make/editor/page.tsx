@@ -1,27 +1,11 @@
 "use client";
 
 import ClientGuard from "@/components/ClientGuard";
+import { Question, Result } from "@/types/test";
+import { QuestionType } from "aws-sdk/clients/wellarchitected";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
-// 타입 정의
-type QuestionType = "subjective" | "objective";
-
-type Question = {
-  id: number;
-  text: string;
-  type: QuestionType;
-  imageUrl: string;
-  options: string[];
-};
-
-type Result = {
-  id: number;
-  name: string;
-  description: string;
-  imageUrl: string;
-};
 
 async function uploadImageToS3(file: File): Promise<string> {
   const res = await fetch("/api/upload", {
@@ -50,10 +34,16 @@ export default function MakeEditorPage() {
   const [titleImage, setTitleImage] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [questions, setQuestions] = useState<Question[]>([
-    { id: 1, text: "", type: "subjective", imageUrl: "", options: ["", ""] },
+    {
+      id: 1,
+      title: "",
+      type: "subjective",
+      image: "",
+      options: [{ text: "" }, { text: "" }],
+    },
   ]);
   const [results, setResults] = useState<Result[]>([
-    { id: 1, name: "", description: "", imageUrl: "" },
+    { id: 1, name: "", description: "", image: "", setting: "" },
   ]);
 
   useEffect(() => {
@@ -90,7 +80,11 @@ export default function MakeEditorPage() {
     );
   };
 
-  const handleOptionChange = (qid: number, index: number, value: string) => {
+  const handleOptionChange = (
+    qid: number,
+    index: number,
+    value: { text: string }
+  ) => {
     setQuestions((prev) =>
       prev.map((q) =>
         q.id === qid
@@ -105,15 +99,15 @@ export default function MakeEditorPage() {
 
   const addOption = (qid: number) => {
     setQuestions((prev) =>
-      prev.map((q) =>
-        q.id === qid ? { ...q, options: [...q.options, ""] } : q
+      prev?.map((q) =>
+        q.id === qid ? { ...q, options: [...q.options, { text: "" }] } : q
       )
     );
   };
 
   const removeOption = (qid: number, index: number) => {
     setQuestions((prev) =>
-      prev.map((q) => {
+      prev?.map((q) => {
         if (q.id === qid && q.options.length > 2) {
           return {
             ...q,
@@ -132,10 +126,10 @@ export default function MakeEditorPage() {
       ...questions,
       {
         id: nextId,
-        text: "",
+        title: "",
         type: "subjective",
-        imageUrl: "",
-        options: ["", ""],
+        image: "",
+        options: [{ text: "" }, { text: "" }],
       },
     ]);
   };
@@ -162,7 +156,7 @@ export default function MakeEditorPage() {
     const nextId = results.length > 0 ? results[results.length - 1].id + 1 : 1;
     setResults([
       ...results,
-      { id: nextId, name: "", description: "", imageUrl: "" },
+      { id: nextId, name: "", description: "", image: "", setting: "" },
     ]);
   };
 
@@ -195,7 +189,7 @@ export default function MakeEditorPage() {
       return false;
     }
 
-    const hasEmptyQuestionText = questions.some((q) => !q.text);
+    const hasEmptyQuestionText = questions.some((q) => !q.title);
     const hasEmptyResultName = results.some((r) => !r.name || !r.description);
 
     if (hasEmptyQuestionText) {
@@ -279,7 +273,7 @@ export default function MakeEditorPage() {
             />
           )}
           <label className="block text-sm font-semibold mb-1">
-            테스트 이름
+            테스트 이름(필수)
           </label>
           <input
             type="text"
@@ -307,11 +301,11 @@ export default function MakeEditorPage() {
                 </div>
                 <input
                   type="text"
-                  value={q.text}
+                  value={q.title}
                   onChange={(e) =>
-                    handleQuestionChange(q.id, "text", e.target.value)
+                    handleQuestionChange(q.id, "title", e.target.value)
                   }
-                  placeholder="질문 내용을 입력하세요"
+                  placeholder="질문 내용을 입력하세요(필수)"
                   className="w-full border px-3 py-2 rounded"
                 />
                 <input
@@ -323,9 +317,9 @@ export default function MakeEditorPage() {
                   }}
                   className="w-full border px-3 py-2 rounded mb-2"
                 />
-                {q.imageUrl && (
+                {q.image && (
                   <Image
-                    src={q.imageUrl}
+                    src={q.image}
                     alt={`질문 ${q.id} 이미지`}
                     width={400}
                     height={250}
@@ -351,15 +345,17 @@ export default function MakeEditorPage() {
                 </div>
                 {q.type === "objective" && (
                   <div className="space-y-2">
-                    {q.options.map((opt, idx) => (
+                    {q.options?.map((opt, idx) => (
                       <div key={idx} className="flex items-center gap-2">
                         <input
                           type="text"
-                          value={opt}
+                          value={opt.text}
                           onChange={(e) =>
-                            handleOptionChange(q.id, idx, e.target.value)
+                            handleOptionChange(q.id, idx, {
+                              text: e.target.value,
+                            })
                           }
-                          placeholder={`보기 ${idx + 1}`}
+                          placeholder={`보기 ${idx + 1}(필수)`}
                           className="w-full border px-3 py-1 rounded"
                         />
                         {q.options.length > 2 && (
@@ -412,7 +408,7 @@ export default function MakeEditorPage() {
                   onChange={(e) =>
                     handleResultChange(r.id, "name", e.target.value)
                   }
-                  placeholder="결과 이름"
+                  placeholder="결과 이름(필수)"
                   className="w-full border px-3 py-2 rounded"
                 />
                 <textarea
@@ -420,7 +416,7 @@ export default function MakeEditorPage() {
                   onChange={(e) =>
                     handleResultChange(r.id, "description", e.target.value)
                   }
-                  placeholder="결과 설명"
+                  placeholder="결과 설명(필수)"
                   className="w-full border px-3 py-2 rounded"
                   rows={3}
                 />
@@ -433,9 +429,9 @@ export default function MakeEditorPage() {
                   }}
                   className="w-full border px-3 py-2 rounded mb-2"
                 />
-                {r.imageUrl && (
+                {r.image && (
                   <Image
-                    src={r.imageUrl}
+                    src={r.image}
                     alt={`결과 ${r.id} 이미지`}
                     width={400}
                     height={250}

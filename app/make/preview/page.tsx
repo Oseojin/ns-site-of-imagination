@@ -1,30 +1,9 @@
 "use client";
 
+import { TestData } from "@/types/test";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
-type Question = {
-  id: number;
-  text: string;
-  type: "subjective" | "multiple";
-  imageUrl: string;
-  options: string[];
-};
-
-type Result = {
-  id: number;
-  name: string;
-  description: string;
-  imageUrl: string;
-};
-
-type TestData = {
-  title: string;
-  titleImage: string;
-  questions: Question[];
-  results: Result[];
-};
 
 export default function PreviewPage() {
   const router = useRouter();
@@ -88,11 +67,13 @@ export default function PreviewPage() {
 
       {step === "question" && currentQuestion && (
         <div>
-          <h2 className="text-xl font-semibold mb-2">{currentQuestion.text}</h2>
-          {currentQuestion.imageUrl &&
-            (currentQuestion.imageUrl === "" ? null : (
+          <h2 className="text-xl font-semibold mb-2">
+            {currentQuestion.title}
+          </h2>
+          {currentQuestion.image &&
+            (currentQuestion.image === "" ? null : (
               <Image
-                src={currentQuestion.imageUrl}
+                src={currentQuestion.image}
                 alt={`질문 이미지`}
                 width={800}
                 height={300}
@@ -100,15 +81,15 @@ export default function PreviewPage() {
               />
             ))}
 
-          {currentQuestion.type === "multiple" ? (
+          {currentQuestion.type === "objective" ? (
             <div className="flex flex-col gap-2">
-              {currentQuestion.options.map((opt, idx) => (
+              {currentQuestion.options?.map((opt, idx) => (
                 <button
                   key={idx}
-                  onClick={() => handleAnswer(opt)}
+                  onClick={() => handleAnswer(opt.text)}
                   className="border px-4 py-2 rounded hover:bg-gray-100"
                 >
-                  {opt}
+                  {opt.text}
                 </button>
               ))}
             </div>
@@ -120,9 +101,9 @@ export default function PreviewPage() {
 
       {step === "result" && randomResult && (
         <div className="text-center">
-          {randomResult.imageUrl === "" ? null : (
+          {randomResult.image === "" ? null : (
             <Image
-              src={randomResult.imageUrl}
+              src={randomResult.image}
               alt={randomResult.name}
               width={600}
               height={300}

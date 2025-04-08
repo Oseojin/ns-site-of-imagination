@@ -2,10 +2,9 @@ export const dynamic = "force-dynamic";
 
 import ClientGuard from "@/components/ClientGuard";
 import StartButton from "@/components/StartButton";
+import { IParams } from "@/types/test";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-
-type IParams = Promise<{ id: string }>;
 
 export default async function TestDetailPage({ params }: { params: IParams }) {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";

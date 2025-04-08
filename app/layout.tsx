@@ -28,9 +28,9 @@ export default function RootLayout({
               </Link>
               <Link
                 href="/make"
-                className="text-sm text-gray-700 hover:underline"
+                className="text-lg font-medium text-gray-700 hover:underline"
               >
-                상상공방
+                상상공방(테스트 만들기)
               </Link>
             </div>
 

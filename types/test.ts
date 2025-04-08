@@ -1,25 +1,53 @@
-export interface OptionInput {
-  text: string;
-}
-
-export interface QuestionInput {
+export type Test = {
+  id: number;
   title: string;
-  body: string;
-  image: string;
-  type: "subjective" | "objective"; // 주관식, 객관식
-  options?: OptionInput[];
-}
+  titleImage: string;
+  createdAt: string;
+};
 
-export interface ResultInput {
+export type IParams = Promise<{ id: string }>;
+
+export type Option = {
+  text: string;
+};
+
+export type QuestionType = "subjective" | "objective";
+
+export type Result = {
+  id: number;
   name: string;
   description: string;
   image: string;
   setting: string;
-}
+};
 
-export interface UpdateTestInput {
+export type Question = {
+  id: number;
+  title: string;
+  image: string;
+  type: QuestionType;
+  options: Option[];
+};
+
+export type TestData = {
   title: string;
   titleImage: string;
-  questions: QuestionInput[];
-  results: ResultInput[];
-}
+  questions: Question[];
+  results: Result[];
+};
+
+export type TestPayload = {
+  title: string;
+  titleImage: string;
+  questions: {
+    text: string;
+    type: QuestionType;
+    imageUrl: string;
+    options: string[];
+  }[];
+  results: {
+    name: string;
+    description: string;
+    imageUrl: string;
+  }[];
+};

@@ -1,23 +1,17 @@
 "use client";
 
 import ClientGuard from "@/components/ClientGuard";
+import { Test } from "@/types/test";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-interface TestItem {
-  id: number;
-  title: string;
-  titleImage: string;
-  createdAt: string;
-}
-
 export default function TestManagePage() {
   const router = useRouter();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { data: _session, status } = useSession();
-  const [tests, setTests] = useState<TestItem[]>([]);
+  const [tests, setTests] = useState<Test[]>([]);
 
   useEffect(() => {
     if (status === "authenticated") {

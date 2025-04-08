@@ -1,26 +1,9 @@
 // app/api/tests/route.ts
 import { authConfig } from "@/lib/auth.config";
 import prisma from "@/lib/prisma";
+import { TestPayload } from "@/types/test";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
-
-type QuestionType = "subjective" | "objective";
-
-interface TestPayload {
-  title: string;
-  titleImage: string;
-  questions: {
-    text: string;
-    type: QuestionType;
-    imageUrl: string;
-    options: string[];
-  }[];
-  results: {
-    name: string;
-    description: string;
-    imageUrl: string;
-  }[];
-}
 
 // app/api/tests/route.ts
 export async function POST(req: Request) {

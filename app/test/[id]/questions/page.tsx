@@ -1,31 +1,10 @@
 // app/test/[id]/questions/page.tsx
 "use client";
 
+import { Question, TestData } from "@/types/test";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
-type Question = {
-  id: number;
-  title: string;
-  body: string;
-  image: string;
-  type: "subjective" | "objective";
-  options?: { text: string }[];
-};
-
-type Result = {
-  name: string;
-  description: string;
-  image: string;
-  setting: string;
-};
-
-type TestData = {
-  title: string;
-  questions: Question[];
-  results: Result[];
-};
 
 export default function QuestionsPage() {
   const { id } = useParams();
@@ -126,7 +105,7 @@ export default function QuestionsPage() {
       </div>
 
       <h2 className="text-xl font-semibold">{question.title}</h2>
-      <p>{question.body}</p>
+      <p>{question.title}</p>
 
       {question.type === "objective" ? (
         <div className="grid gap-4 mt-4">
