@@ -6,7 +6,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-// 디바운스 함수
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function debounce<T extends (...args: any[]) => void>(
   func: T,
@@ -21,6 +20,8 @@ function debounce<T extends (...args: any[]) => void>(
 
 export default function Home() {
   const [tests, setTests] = useState<Test[]>([]);
+  const [likeCounts, setLikeCounts] = useState<Record<number, number>>({});
+  const [likedTests, setLikedTests] = useState<Record<number, boolean>>({});
   const [searchKeyword, setSearchKeyword] = useState<string>("");
 
   const fetchTests = async (keyword: string) => {
@@ -34,30 +35,55 @@ export default function Home() {
       if (!text) return;
 
       const data = JSON.parse(text);
-      if (Array.isArray(data)) setTests(data);
+      if (Array.isArray(data)) {
+        setTests(data);
+        // 테스트별 좋아요 수 및 상태 로딩
+        data.forEach(async (test: Test) => {
+          const res = await fetch(`/api/likes/${test.id}`);
+          if (res.ok) {
+            const { total, liked } = await res.json();
+            setLikeCounts((prev) => ({ ...prev, [test.id]: total }));
+            setLikedTests((prev) => ({ ...prev, [test.id]: liked }));
+          }
+        });
+      }
     } catch (err) {
       console.error("데이터 불러오기 실패", err);
     }
   };
 
-  // 디바운싱된 검색 함수
   const debouncedFetchTests = debounce(fetchTests, 300);
 
-  // 검색어 변경 시 API 호출
   useEffect(() => {
     debouncedFetchTests(searchKeyword);
   }, [searchKeyword]);
 
-  // 초기 전체 리스트 로딩
   useEffect(() => {
     fetchTests("");
   }, []);
+
+  const toggleLike = async (testId: number) => {
+    const isLiked = likedTests[testId] ?? false;
+
+    const res = await fetch("/api/likes", {
+      method: isLiked ? "DELETE" : "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ testId }),
+    });
+
+    if (res.ok) {
+      setLikedTests((prev) => ({ ...prev, [testId]: !isLiked }));
+      setLikeCounts((prev) => ({
+        ...prev,
+        [testId]: (prev[testId] ?? 0) + (isLiked ? -1 : 1),
+      }));
+    }
+  };
 
   return (
     <div className="w-full max-w-screen-xl mx-auto px-6 py-12">
       <h1 className="text-2xl font-bold mb-6">🧠 상상 테스트 목록</h1>
 
-      {/* 검색 입력창 */}
       <div className="mb-8">
         <input
           type="text"
@@ -68,28 +94,42 @@ export default function Home() {
         />
       </div>
 
-      {/* 결과 리스트 */}
       {tests.length === 0 ? (
         <p className="text-gray-500">검색 결과가 없습니다.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {tests.map((test) => (
-            <Link
+            <div
               key={test.id}
-              href={`/test/${test.id}`}
               className="border rounded-xl overflow-hidden shadow hover:shadow-lg transition"
             >
-              {test.titleImage && (
-                <Image
-                  src={test.titleImage}
-                  alt={test.title}
-                  width={400}
-                  height={200}
-                  className="w-full h-40 object-cover"
-                />
-              )}
-              <div className="p-4 font-semibold">{test.title}</div>
-            </Link>
+              <Link href={`/test/${test.id}`}>
+                {test.titleImage && (
+                  <Image
+                    src={test.titleImage}
+                    alt={test.title}
+                    width={400}
+                    height={200}
+                    className="w-full h-40 object-cover"
+                  />
+                )}
+              </Link>
+
+              <div className="p-4 flex justify-between items-center">
+                <Link href={`/test/${test.id}`} className="font-semibold">
+                  {test.title}
+                </Link>
+                <button
+                  onClick={() => toggleLike(test.id)}
+                  className="flex items-center text-sm text-gray-600 hover:scale-105 transition"
+                >
+                  <span className="mr-1">
+                    {likedTests[test.id] ? "❤️" : "🤍"}
+                  </span>
+                  {likeCounts[test.id] ?? 0}
+                </button>
+              </div>
+            </div>
           ))}
         </div>
       )}

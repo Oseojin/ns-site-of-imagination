@@ -12,6 +12,7 @@ export default function TestManagePage() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { data: _session, status } = useSession();
   const [tests, setTests] = useState<Test[]>([]);
+  const [likeCounts, setLikeCounts] = useState<Record<number, number>>({});
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -27,6 +28,13 @@ export default function TestManagePage() {
         .then((data) => {
           if (Array.isArray(data)) {
             setTests(data);
+            data.forEach(async (test: Test) => {
+              const res = await fetch(`/api/likes/${test.id}`);
+              if (res.ok) {
+                const { total } = await res.json();
+                setLikeCounts((prev) => ({ ...prev, [test.id]: total }));
+              }
+            });
           }
         })
         .catch((err) => {
@@ -46,7 +54,6 @@ export default function TestManagePage() {
 
     if (res.ok) {
       alert("삭제되었습니다.");
-      // 새로고침 혹은 목록 재로딩
       window.location.reload();
     } else {
       alert("삭제 실패");
@@ -56,7 +63,6 @@ export default function TestManagePage() {
   return (
     <ClientGuard>
       <div className="w-full p-6 relative">
-        {/* 새 테스트 만들기 버튼 */}
         <button
           className="absolute top-6 right-6 text-white bg-black py-2 px-4 rounded hover:bg-gray-800 text-sm z-10"
           onClick={() => router.push("/make/editor")}
@@ -70,7 +76,7 @@ export default function TestManagePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {tests.map((test) => (
               <div key={test.id} className="border p-4 rounded shadow-sm">
-                {test.titleImage === "" ? null : (
+                {test.titleImage && (
                   <Image
                     src={test.titleImage}
                     alt={test.title}
@@ -79,16 +85,19 @@ export default function TestManagePage() {
                     className="rounded mb-2 object-cover"
                   />
                 )}
-                <h2 className="font-semibold text-lg mb-2">{test.title}</h2>
+                <div className="flex justify-between items-center mb-2">
+                  <h2 className="font-semibold text-lg">{test.title}</h2>
+                  <span className="text-sm text-gray-500">
+                    ❤️ {likeCounts[test.id] ?? 0}
+                  </span>
+                </div>
                 <div className="flex gap-2">
-                  {
-                    <button
-                      className="text-sm px-3 py-1 border rounded hover:bg-gray-100"
-                      onClick={() => router.push(`/make/editor/${test.id}`)}
-                    >
-                      수정
-                    </button>
-                  }
+                  <button
+                    className="text-sm px-3 py-1 border rounded hover:bg-gray-100"
+                    onClick={() => router.push(`/make/editor/${test.id}`)}
+                  >
+                    수정
+                  </button>
                   <button
                     className="text-sm px-3 py-1 border rounded text-red-500 hover:bg-red-50"
                     onClick={() => handleDelete(test.id)}

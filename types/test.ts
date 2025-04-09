@@ -6,6 +6,7 @@ export type Test = {
 };
 
 export type IParams = Promise<{ id: string }>;
+export type ILikes = Promise<{ id: number }>;
 
 export type Option = {
   text: string;

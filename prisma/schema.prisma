@@ -7,12 +7,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Like {
+  id       Int    @id @default(autoincrement())
+  user     User   @relation(fields: [userId], references: [id])
+  userId   Int
+  test     Test   @relation(fields: [testId], references: [id])
+  testId   Int
+
+  @@unique([userId, testId]) // 사용자 1명이 테스트에 1번만 좋아요 가능
+}
+
+
 model User {
   id        Int      @id @default(autoincrement())
   providerId String  @unique
   name      String?
   image     String?
   tests     Test[]
+  likes     Like[]
   createdAt DateTime @default(now())
 }
 
@@ -26,6 +38,7 @@ model Test {
   userId      Int
   questions   Question[]
   results     Result[]
+  likes     Like[]
   createdAt   DateTime   @default(now())
 }
 
