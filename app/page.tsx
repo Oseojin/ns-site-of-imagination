@@ -151,6 +151,13 @@ export default function Home() {
           ))}
         </div>
       )}
+      <div>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1291810764124876"
+          crossOrigin="anonymous"
+        ></script>
+      </div>
     </div>
   );
 }
