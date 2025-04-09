@@ -68,18 +68,27 @@ export async function POST(req: Request) {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function GET(req: NextRequest) {
   try {
-    const tests = await prisma.test.findMany({
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        title: true,
-        titleImage: true,
-        createdAt: true,
-      },
-    });
+    const keyword =
+      req.nextUrl.searchParams.get("keyword")?.toLowerCase() ?? "";
+
+    const tests = keyword
+      ? await prisma.$queryRaw`
+          SELECT id, title, titleImage, createdAt
+          FROM Test
+          WHERE LOWER(title) LIKE ${"%" + keyword + "%"}
+          ORDER BY createdAt DESC
+        `
+      : await prisma.test.findMany({
+          orderBy: { createdAt: "desc" },
+          select: {
+            id: true,
+            title: true,
+            titleImage: true,
+            createdAt: true,
+          },
+        });
 
     return NextResponse.json(tests);
   } catch (error) {
