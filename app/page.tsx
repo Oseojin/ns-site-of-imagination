@@ -92,7 +92,7 @@ export default function Home() {
 
   return (
     <div className="w-full max-w-screen-xl mx-auto px-6 py-12">
-      <h1 className="text-2xl font-bold mb-6">🧠 상상 테스트 목록</h1>
+      <h1 className="text-2xl font-bold mb-6">🧠 상상 테스트 목록 </h1>
 
       <div className="mb-8">
         <input
