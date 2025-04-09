@@ -1,7 +1,7 @@
 // app/page.tsx
 "use client";
 
-import { Test } from "@/types/test";
+import { TestWithLikes } from "@/types/test";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -19,33 +19,43 @@ function debounce<T extends (...args: any[]) => void>(
 }
 
 export default function Home() {
-  const [tests, setTests] = useState<Test[]>([]);
+  const [tests, setTests] = useState<TestWithLikes[]>([]);
   const [likeCounts, setLikeCounts] = useState<Record<number, number>>({});
   const [likedTests, setLikedTests] = useState<Record<number, boolean>>({});
   const [searchKeyword, setSearchKeyword] = useState<string>("");
+  const [sort, setSort] = useState<"recent" | "likes">("recent");
 
-  const fetchTests = async (keyword: string) => {
+  const fetchTests = async (keyword: string, sort: "recent" | "likes") => {
     try {
       const res = await fetch(
-        `/api/tests?keyword=${encodeURIComponent(keyword)}`
+        `/api/tests?keyword=${encodeURIComponent(keyword)}&sort=${sort}`
       );
       if (!res.ok) throw new Error("API 호출 실패");
 
-      const text = await res.text();
-      if (!text) return;
-
-      const data = JSON.parse(text);
+      const data = await res.json();
       if (Array.isArray(data)) {
         setTests(data);
-        // 테스트별 좋아요 수 및 상태 로딩
-        data.forEach(async (test: Test) => {
-          const res = await fetch(`/api/likes/${test.id}`);
-          if (res.ok) {
-            const { total, liked } = await res.json();
-            setLikeCounts((prev) => ({ ...prev, [test.id]: total }));
-            setLikedTests((prev) => ({ ...prev, [test.id]: liked }));
-          }
-        });
+
+        // 좋아요 수 직접 포함된 경우
+        const likeMap: Record<number, number> = {};
+        const likedMap: Record<number, boolean> = {};
+
+        await Promise.all(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          data.map(async (test: any) => {
+            likeMap[test.id] = test.likeCount ?? 0;
+
+            // 좋아요 여부는 여전히 개별 확인이 필요
+            const res = await fetch(`/api/likes/${test.id}`);
+            if (res.ok) {
+              const { liked } = await res.json();
+              likedMap[test.id] = liked;
+            }
+          })
+        );
+
+        setLikeCounts(likeMap);
+        setLikedTests(likedMap);
       }
     } catch (err) {
       console.error("데이터 불러오기 실패", err);
@@ -55,11 +65,11 @@ export default function Home() {
   const debouncedFetchTests = debounce(fetchTests, 300);
 
   useEffect(() => {
-    debouncedFetchTests(searchKeyword);
-  }, [searchKeyword]);
+    debouncedFetchTests(searchKeyword, sort);
+  }, [searchKeyword, sort]);
 
   useEffect(() => {
-    fetchTests("");
+    fetchTests("", sort);
   }, []);
 
   const toggleLike = async (testId: number) => {
@@ -92,6 +102,14 @@ export default function Home() {
           placeholder="테스트 제목을 검색해보세요"
           className="w-full max-w-md border px-4 py-2 rounded shadow-sm"
         />
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value as "recent" | "likes")} // ✅ 여기서 사용됨
+          className="ml-4 border rounded px-3 py-2 text-sm"
+        >
+          <option value="recent">📅 최신순</option>
+          <option value="likes">❤️ 좋아요순</option>
+        </select>
       </div>
 
       {tests.length === 0 ? (

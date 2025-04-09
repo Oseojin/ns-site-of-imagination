@@ -108,20 +108,22 @@ export async function PUT(req: Request, { params }: { params: ITest }) {
       const createdQuestion = await prisma.question.create({
         data: {
           testId,
-          title: q.text,
+          title: q.title,
           body: "",
           type: q.type === "objective" ? "objective" : "subjective",
-          image: q.imageUrl || "",
+          image: q.image || "",
         },
       });
 
       if (q.type === "objective" && q.options?.length > 0) {
         await prisma.option.createMany({
           data: q.options
-            .filter((opt) => typeof opt === "string" && opt.trim() !== "")
-            .map((text) => ({
+            .filter(
+              (opt) => typeof opt.text === "string" && opt.text.trim() !== ""
+            )
+            .map((opt) => ({
               questionId: createdQuestion.id,
-              text,
+              text: opt.text.trim(), // ✅ 실제 문자열로 넣기
             })),
         });
       }
@@ -133,7 +135,7 @@ export async function PUT(req: Request, { params }: { params: ITest }) {
         testId,
         name: r.name,
         description: r.description,
-        image: r.imageUrl || "",
+        image: r.image || "",
         setting: "",
       })),
     });

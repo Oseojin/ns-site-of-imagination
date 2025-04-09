@@ -41,12 +41,12 @@ export async function POST(req: Request) {
         userId: user.id,
         questions: {
           create: body.questions.map((q) => ({
-            title: q.text,
+            title: q.title,
             body: "",
             type: q.type === "objective" ? "objective" : "subjective",
-            image: q.imageUrl,
+            image: q.image,
             options: {
-              create: q.options.map((text) => ({ text })),
+              create: q.options.map((opt) => ({ text: opt.text })), // ✅ 핵심 수정
             },
           })),
         },
@@ -54,7 +54,7 @@ export async function POST(req: Request) {
           create: body.results.map((r) => ({
             name: r.name,
             description: r.description,
-            image: r.imageUrl,
+            image: r.image,
             setting: "",
           })),
         },
@@ -72,25 +72,64 @@ export async function GET(req: NextRequest) {
   try {
     const keyword =
       req.nextUrl.searchParams.get("keyword")?.toLowerCase() ?? "";
+    const sort = req.nextUrl.searchParams.get("sort") ?? "recent";
+
+    // 정렬 기준에 따라 ORDER BY 결정
+    const orderByClause =
+      sort === "likes"
+        ? "ORDER BY likeCount DESC"
+        : "ORDER BY t.createdAt DESC";
+
+    const queryBase = `
+      SELECT
+        t.id,
+        t.title,
+        t.titleImage,
+        t.createdAt,
+        COUNT(l.id) AS likeCount
+      FROM Test t
+      LEFT JOIN \`Like\` l ON t.id = l.testId
+    `;
+
+    const query = keyword
+      ? `
+        ${queryBase}
+        WHERE LOWER(t.title) LIKE CONCAT('%', ?, '%')
+        GROUP BY t.id
+        ${orderByClause}
+      `
+      : `
+        ${queryBase}
+        GROUP BY t.id
+        ${orderByClause}
+      `;
 
     const tests = keyword
-      ? await prisma.$queryRaw`
-          SELECT id, title, titleImage, createdAt
-          FROM Test
-          WHERE LOWER(title) LIKE ${"%" + keyword + "%"}
-          ORDER BY createdAt DESC
-        `
-      : await prisma.test.findMany({
-          orderBy: { createdAt: "desc" },
-          select: {
-            id: true,
-            title: true,
-            titleImage: true,
-            createdAt: true,
-          },
-        });
+      ? await prisma.$queryRawUnsafe<
+          {
+            id: number;
+            title: string;
+            titleImage: string;
+            createdAt: Date;
+            likeCount: bigint;
+          }[]
+        >(query, keyword)
+      : await prisma.$queryRawUnsafe<
+          {
+            id: number;
+            title: string;
+            titleImage: string;
+            createdAt: Date;
+            likeCount: bigint;
+          }[]
+        >(query);
 
-    return NextResponse.json(tests);
+    return NextResponse.json(
+      tests.map((test) => ({
+        ...test,
+        likeCount: Number(test.likeCount),
+      }))
+    );
   } catch (error) {
     console.error("테스트 목록 불러오기 실패:", error);
     return NextResponse.json({ message: "서버 오류" }, { status: 500 });

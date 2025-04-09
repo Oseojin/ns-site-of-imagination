@@ -5,6 +5,10 @@ export type Test = {
   createdAt: string;
 };
 
+export type TestWithLikes = Test & {
+  likeCount: number;
+};
+
 export type IParams = Promise<{ id: string }>;
 export type ILikes = Promise<{ id: number }>;
 
@@ -41,14 +45,14 @@ export type TestPayload = {
   title: string;
   titleImage: string;
   questions: {
-    text: string;
+    title: string; // ✅ 일관된 이름
     type: QuestionType;
-    imageUrl: string;
-    options: string[];
+    image: string;
+    options: { text: string }[]; // ✅ Option[] 형태로 통일
   }[];
   results: {
     name: string;
     description: string;
-    imageUrl: string;
+    image: string;
   }[];
 };
