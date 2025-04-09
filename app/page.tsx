@@ -1,6 +1,8 @@
 // app/page.tsx
 "use client";
 
+import GoogleAd from "@/components/GoogleAd";
+import KaKaoAd from "@/components/KakaoAd";
 import { TestWithLikes } from "@/types/test";
 import Image from "next/image";
 import Link from "next/link";
@@ -92,6 +94,9 @@ export default function Home() {
 
   return (
     <div className="w-full max-w-screen-xl mx-auto px-6 py-12">
+      <div className="hidden lg:block fixed right-6 top-32 z-10">
+        <KaKaoAd />
+      </div>
       <h1 className="text-2xl font-bold mb-6">🧠 상상 테스트 목록 </h1>
 
       <div className="mb-8">
@@ -151,12 +156,8 @@ export default function Home() {
           ))}
         </div>
       )}
-      <div>
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1291810764124876"
-          crossOrigin="anonymous"
-        ></script>
+      <div className="mt-12">
+        <GoogleAd />
       </div>
     </div>
   );
