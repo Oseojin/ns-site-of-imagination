@@ -5,7 +5,6 @@ import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
 type IParams = Promise<{ id: string }>;
-type ITest = Promise<{ id: number }>;
 
 export async function GET(req: NextRequest, { params }: { params: IParams }) {
   const id = (await params).id;
@@ -57,8 +56,8 @@ export async function GET(req: NextRequest, { params }: { params: IParams }) {
   }
 }
 
-export async function PUT(req: Request, { params }: { params: ITest }) {
-  const testId = (await params).id;
+export async function PUT(req: Request, { params }: { params: IParams }) {
+  const testId = Number((await params).id);
 
   const session = await getServerSession(authConfig);
   const providerId = session?.user?.id;
