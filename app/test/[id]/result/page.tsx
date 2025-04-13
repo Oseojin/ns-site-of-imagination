@@ -10,7 +10,7 @@ export async function generateMetadata(params: { params: IID }) {
     title: "테스트 결과",
     openGraph: {
       title: "내 결과는 어떤 타입일까?",
-      description: "Ns_Site_of_Imagination에서 만든 심리 테스트 결과입니다.",
+      description: "N들의 상상터에서 만든 심리 테스트 결과입니다.",
       type: "website",
       url: `${siteUrl}/test/${id}/result`,
       images: [
@@ -25,7 +25,7 @@ export async function generateMetadata(params: { params: IID }) {
     twitter: {
       card: "summary_large_image",
       title: "내 결과는 어떤 타입일까?",
-      description: "Ns_Site_of_Imagination에서 만든 심리 테스트 결과입니다.",
+      description: "N들의 상상터에서 만든 심리 테스트 결과입니다.",
       images: [`${siteUrl}/api/og/${id}`],
     },
   };
