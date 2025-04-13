@@ -6,14 +6,14 @@ import { v4 as uuidv4 } from "uuid";
 
 // 환경변수에서 설정 (환경 파일에 입력 필요)
 const s3 = new S3Client({
-  region: process.env.AWS_REGION,
+  region: process.env.S3_REGION,
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    accessKeyId: process.env.S3_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.S3_SECRET_ACCESS_KEY!,
   },
 });
 
-const BUCKET_NAME = process.env.AWS_BUCKET_NAME!;
+const BUCKET_NAME = process.env.S3_BUCKET_NAME!;
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
