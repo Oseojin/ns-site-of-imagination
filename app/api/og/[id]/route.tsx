@@ -4,8 +4,6 @@ import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 import { IID } from "@/types/type";
 
-export const runtime = "edge";
-
 export async function GET(req: NextRequest, params: { params: IID }) {
   const testId = parseInt((await params.params).id, 10);
   const test = await prisma.test.findUnique({
