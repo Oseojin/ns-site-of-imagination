@@ -1,79 +1,96 @@
+// 📄 prisma/schema.prisma
+
+datasource db {
+  provider = "mysql" // 또는 "postgresql"
+  url      = env("DATABASE_URL")
+}
+
 generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
-}
-
-model Like {
-  id       Int    @id @default(autoincrement())
-  user     User   @relation(fields: [userId], references: [id])
-  userId   Int
-  test     Test   @relation(fields: [testId], references: [id])
-  testId   Int
-
-  @@unique([userId, testId]) // 사용자 1명이 테스트에 1번만 좋아요 가능
-}
-
-
 model User {
-  id        Int      @id @default(autoincrement())
-  providerId String  @unique
-  name      String?
-  image     String?
-  tests     Test[]
-  likes     Like[]
-  createdAt DateTime @default(now())
+  id         String    @id
+  nickname   String
+  image      String?
+  tests      Test[]
+  comments   Comment[]
+  likes      Like[]
 }
 
 model Test {
   id          Int        @id @default(autoincrement())
   title       String
   titleImage  String
-  description String
-  image       String
+  setting     String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  userId      String
   user        User       @relation(fields: [userId], references: [id])
-  userId      Int
   questions   Question[]
   results     Result[]
-  likes     Like[]
-  createdAt   DateTime   @default(now())
+  comments    Comment[]
+  likes       Like[]
 }
 
 model Question {
-  id          Int        @id @default(autoincrement())
-  title       String
-  body        String
-  image       String
-  type        String
-  test        Test       @relation(fields: [testId], references: [id])
-  testId      Int
-  options     Option[]
+  id        Int       @id @default(autoincrement())
+  title     String
+  body      String
+  image     String
+  type      QuestionType
+  testId    Int
+  test      Test      @relation(fields: [testId], references: [id])
+  options   Option[]  // 객관식일 경우만 존재
 }
 
 model Option {
-  id          Int        @id @default(autoincrement())
-  text        String
-  question    Question   @relation(fields: [questionId], references: [id])
-  questionId  Int
+  id         Int     @id @default(autoincrement())
+  text       String
+  questionId Int
+  question   Question @relation(fields: [questionId], references: [id])
 }
 
 model Result {
-  id          Int        @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   name        String
-  description String
+  description String     // 사용자용 설명
+  setting     String     // AI용 설명
   image       String
-  setting     String
-  test        Test       @relation(fields: [testId], references: [id])
   testId      Int
+  test        Test    @relation(fields: [testId], references: [id])
+
+  saveResults SavedResult[]
 }
 
-model Answer {
-  id          Int        @id @default(autoincrement())
-  questionId  Int
-  userId      Int
-  content     String
-  createdAt   DateTime   @default(now())
+model Like {
+  id      Int    @id @default(autoincrement())
+  userId  String
+  testId  Int
+  user    User   @relation(fields: [userId], references: [id])
+  test    Test   @relation(fields: [testId], references: [id])
+
+  @@unique([userId, testId]) // 1인 1테스트 1좋아요 제한
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  userId    String
+  testId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  test      Test     @relation(fields: [testId], references: [id])
+}
+
+enum QuestionType {
+  subjective  // 주관식
+  objective   // 객관식
+}
+
+model SavedResult {
+  id        String   @id @default(cuid()) // 공유 가능한 고유 ID
+  resultId  Int
+  result    Result   @relation(fields: [resultId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 }

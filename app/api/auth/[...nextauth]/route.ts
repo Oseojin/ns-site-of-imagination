@@ -1,6 +1,6 @@
-import { authConfig } from "@/lib/auth.config"; // ✅ 이거 반드시 import!
+// 📄 app/api/auth/[...nextauth]/route.ts
 import NextAuth from "next-auth";
+import { authConfig } from "@/lib/auth.config";
 
 const handler = NextAuth(authConfig);
-
 export { handler as GET, handler as POST };

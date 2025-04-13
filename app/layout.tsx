@@ -1,47 +1,22 @@
-import AuthButtons from "@/components/AuthButtons";
-import SessionProvider from "@/components/SessionProvider";
-import { Analytics } from "@vercel/analytics/next";
-import { Inter } from "next/font/google";
-import Link from "next/link";
+// 📄 app/layout.tsx
 import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
+import { ReactNode } from "react";
+import Header from "@/components/Header";
+import { AuthProvider } from "@/components/AuthProvider";
 
 export const metadata = {
-  title: "Ns_Site_of_Imagination",
-  description: "상상력으로 만드는 심리 테스트 플랫폼",
+  title: { title: "%s | N들의 상상터", default: "상상터" },
+  description: "상상력의 공간",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ko">
-      <body className={inter.className}>
-        <SessionProvider>
-          <nav className="w-full px-6 py-4 border-b">
-            <div className="flex flex-row items-start gap-2">
-              <Link href="/" className="text-xl font-bold">
-                N들의 상상터
-              </Link>
-              <Link
-                href="/make"
-                className="text-lg font-medium text-gray-700 hover:underline"
-              >
-                상상공방(테스트 만들기)
-              </Link>
-            </div>
-
-            <div className="absolute top-4 right-6">
-              <AuthButtons />
-            </div>
-          </nav>
-
-          {children}
-          <Analytics />
-        </SessionProvider>
+      <body>
+        <AuthProvider>
+          <Header />
+          <main>{children}</main>
+        </AuthProvider>
       </body>
     </html>
   );

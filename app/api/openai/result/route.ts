@@ -1,5 +1,5 @@
-// 📁 app/api/openai/result/route.ts
-
+// 📄 app/api/openai/result/route.ts
+import { QuestionData, ResultData } from "@/types/type";
 import { NextRequest, NextResponse } from "next/server";
 import { OpenAI } from "openai";
 
@@ -12,53 +12,52 @@ export async function POST(req: NextRequest) {
 
   const { answers, questions, results } = body;
 
-  // ✅ results undefined인 경우 에러 방어
-  if (!results || !Array.isArray(results)) {
+  if (!answers || !questions || !results) {
     return NextResponse.json(
-      { error: "결과 데이터가 올바르지 않습니다." },
+      { error: "질문, 답변, 결과 데이터가 모두 필요합니다." },
       { status: 400 }
     );
   }
 
+  // ✅ 프롬프트 구성
   const prompt = `
-  너는 심리 테스트 결과를 분석하는 AI야.
-  사용자의 답변을 참고해서 아래 결과 중에서 가장 적절한 하나를 선택해줘.
-  
-  --- 질문과 응답 ---
-  ${questions
+너는 심리 테스트 결과를 분석하는 AI야.
+사용자의 답변을 참고해서 아래 결과 중에서 가장 적절한 하나를 선택해.
 
-    .map(
-      (q: number, i: number) =>
-        `Q${i + 1}: ${questions[i].title}\nA: ${answers[i]}`
-    )
-    .join("\n")}
-  
-  --- 결과 목록 ---
-  ${results
-    .map(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (r: any, i: number) => `결과${i + 1}: ${r.name}\n설명: ${r.description}`
-    )
-    .join("\n\n")}
-  
-  가장 적절한 결과 하나를 숫자로 선택해줘. 예시: "결과1"
-  `;
+각 결과에는 고유한 ID가 있어.
+선택한 결과의 ID만 숫자 형태로 반환해줘. (예: 3)
+
+[질문과 답변]
+${questions
+  .map(
+    (q: QuestionData, idx: number) =>
+      `Q${idx + 1}: ${q.title}\nA: ${answers[idx]}`
+  )
+  .join("\n")}
+
+[결과 후보]
+${results
+  .map((r: ResultData) => `ID: ${r.id}\n이름: ${r.name}\n설명: ${r.setting}`)
+  .join("\n\n")}
+`;
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+    const response = await openai.chat.completions.create({
+      model: "gpt-4",
       messages: [{ role: "user", content: prompt }],
+      temperature: 0.5,
     });
 
-    console.log(prompt);
-    const content = completion.choices[0].message?.content ?? "";
-    console.log(content);
-    const match = content.match(/결과(\d+)/);
-    const index = match ? parseInt(match[1], 10) - 1 : 0;
+    const content = response.choices[0].message.content?.trim();
+    const resultId = parseInt(content || "", 10);
 
-    return NextResponse.json({ resultIndex: index });
-  } catch (error) {
-    console.error("[OpenAI Error]", error);
+    if (isNaN(resultId)) {
+      throw new Error(`OpenAI 응답 파싱 실패: ${content}`);
+    }
+
+    return NextResponse.json({ resultId });
+  } catch (err) {
+    console.error("AI 분석 실패:", err);
     return NextResponse.json({ error: "AI 분석 실패" }, { status: 500 });
   }
 }
