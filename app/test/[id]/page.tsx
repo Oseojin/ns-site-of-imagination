@@ -21,6 +21,7 @@ export default function TestIntroPage() {
       }
 
       const data = await res.json();
+      console.log(data);
       const parsed: TestPayload = {
         title: data.title,
         titleImage: data.titleImage,

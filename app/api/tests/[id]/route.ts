@@ -24,6 +24,8 @@ export async function GET(_: NextRequest, params: { params: IID }) {
 
   return NextResponse.json({
     title: test.title,
+    titleImage: test.titleImage,
+    setting: test.setting,
     questions: test.questions.map((q) => ({
       title: q.title,
       image: q.image,
