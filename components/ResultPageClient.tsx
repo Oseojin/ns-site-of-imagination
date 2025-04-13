@@ -1,8 +1,8 @@
-"use client";
 // 📄 components/ResultPageClient.tsx
+"use client";
 
 import { useEffect, useState } from "react";
-import { ResultData } from "@/types/type";
+import { ResultData, QuestionData } from "@/types/type";
 import ResultView from "./ResultView";
 
 export default function ResultPageClient({ testId }: { testId: number }) {
@@ -13,10 +13,17 @@ export default function ResultPageClient({ testId }: { testId: number }) {
     if (!raw) return;
 
     const parsed = JSON.parse(raw);
-    const { answers, questions, results } = parsed;
+    const { answers } = parsed;
 
     const analyze = async () => {
       try {
+        // 👉 DB에서 질문 + 결과 불러오기
+        const testRes = await fetch(`/api/tests/${testId}`);
+        const testData = await testRes.json();
+
+        const questions: QuestionData[] = testData.questions;
+        const results: ResultData[] = testData.results;
+
         const aiRes = await fetch("/api/openai/result", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -25,7 +32,7 @@ export default function ResultPageClient({ testId }: { testId: number }) {
 
         const { resultId } = await aiRes.json();
 
-        const res = await fetch(`/api/results/${resultId}`);
+        const res = await fetch(`/api/result/${resultId}`);
         const data: ResultData = await res.json();
         setResult(data);
       } catch (err) {

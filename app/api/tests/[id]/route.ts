@@ -15,6 +15,7 @@ export async function GET(_: NextRequest, params: { params: IID }) {
       questions: {
         include: { options: true },
       },
+      results: true,
     },
   });
 
@@ -31,6 +32,13 @@ export async function GET(_: NextRequest, params: { params: IID }) {
       image: q.image,
       type: q.type,
       options: q.options.map((o) => o.text),
+    })),
+    results: test.results.map((r) => ({
+      id: r.id,
+      name: r.name,
+      image: r.image,
+      description: r.description,
+      setting: r.setting,
     })),
   });
 }
