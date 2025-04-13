@@ -65,12 +65,6 @@ export default function Header() {
               <div className="absolute right-0 mt-2 w-40 bg-white border shadow rounded z-50">
                 <button
                   className="w-full px-4 py-2 text-left hover:bg-gray-100"
-                  onClick={() => signIn("google")}
-                >
-                  Google로 로그인
-                </button>
-                <button
-                  className="w-full px-4 py-2 text-left hover:bg-gray-100"
                   onClick={() => signIn("kakao")}
                 >
                   Kakao로 로그인
