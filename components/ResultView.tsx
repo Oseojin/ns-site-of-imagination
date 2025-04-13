@@ -9,7 +9,7 @@ type Props = {
 };
 
 export default function ResultView({ result }: Props) {
-  const siteUrl = "https://ns-site-of-imagination.com";
+  const siteUrl = "https://ns-sangsangter.com";
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
