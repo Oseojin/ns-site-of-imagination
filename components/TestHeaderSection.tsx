@@ -34,7 +34,7 @@ export default function TestHeaderSection({
             className="w-full border px-4 py-2 rounded"
           />
 
-          <label className="block font-medium mt-4">테스트 설정 설명</label>
+          <label className="block font-medium mt-4">테스트 설명</label>
           <textarea
             value={setting}
             onChange={(e) => setSetting(e.target.value)}
