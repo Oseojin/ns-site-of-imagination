@@ -1,5 +1,5 @@
-// 📄 components/FooterButtons.tsx
 "use client";
+// 📄 components/FooterButtons.tsx
 
 import { FooterButtonProps } from "@/types/type";
 import { useRouter } from "next/navigation";
