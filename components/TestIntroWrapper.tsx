@@ -1,8 +1,8 @@
-// 📄 components/TestIntroWrapper.tsx
 "use client";
+// 📄 components/TestIntroWrapper.tsx
 
-import { useRouter } from "next/navigation";
 import { TestPayload } from "@/types/type";
+import { useRouter } from "next/navigation";
 import TestIntroSection from "./TestIntroSection";
 
 type Props = {

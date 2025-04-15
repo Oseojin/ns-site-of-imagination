@@ -1,8 +1,8 @@
-// 📄 components/ResultPageClient.tsx
 "use client";
+// 📄 components/ResultPageClient.tsx
 
+import { QuestionData, ResultData } from "@/types/type";
 import { useEffect, useState } from "react";
-import { ResultData, QuestionData } from "@/types/type";
 import ResultView from "./ResultView";
 
 export default function ResultPageClient({ testId }: { testId: number }) {
