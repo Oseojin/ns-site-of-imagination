@@ -1,8 +1,9 @@
 // 📄 components/FooterButtons.tsx
 "use client";
 
-import { useRouter } from "next/navigation";
 import { FooterButtonProps } from "@/types/type";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function FooterButtons({
   mode,
@@ -14,6 +15,7 @@ export default function FooterButtons({
   results,
 }: FooterButtonProps) {
   const router = useRouter();
+  const [isSaving, setIsSaving] = useState(false);
 
   const validate = (): string | null => {
     if (!title.trim()) return "테스트 제목을 입력하세요.";
@@ -41,6 +43,7 @@ export default function FooterButtons({
   };
 
   const handleSubmit = async () => {
+    setIsSaving(() => true);
     const error = validate();
     if (error) {
       alert(error);
@@ -68,8 +71,10 @@ export default function FooterButtons({
 
     if (res.ok) {
       router.push("/make");
+      setIsSaving(() => false);
     } else {
       alert("저장에 실패했습니다.");
+      setIsSaving(() => false);
     }
   };
 
@@ -114,7 +119,7 @@ export default function FooterButtons({
         onClick={handleSubmit}
         className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
       >
-        작성 완료
+        {isSaving ? "저장중..." : "작성 완료"}
       </button>
     </div>
   );
